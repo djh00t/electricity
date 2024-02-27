@@ -10,8 +10,11 @@ import os
 import fitz  # PyMuPDF
 
 def disassemble_pdf(pdf_filename):
+    logger.info(f"Opening PDF file: {pdf_filename}")
     with fitz.open(pdf_filename) as pdf:
+        logger.info(f"PDF file opened successfully: {pdf_filename}")
         for page_number in range(len(pdf)):
+            logger.info(f"Processing page: {page_number + 1}/{len(pdf)}")
             page = pdf[page_number]
 
             text = page.get_text("text")
@@ -22,16 +25,23 @@ def disassemble_pdf(pdf_filename):
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
             if start_index != -1:
+                logger.info(f"Found 'Retailer Base URI' on page: {page_number + 1}")
                 # If the "Change log" line is found, only take lines up to that line
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
+                logger.info(f"Filtered non-empty lines on page: {page_number + 1}")
                 # Handle broken multiline URIs and clean up URIs
                 retailer_data = []
                 i = 0
                 while i < len(non_empty_lines):
                     brand = non_empty_lines[i].strip()
                     # Ensure we do not go out of bounds
+                    if i + 1 < len(non_empty_lines):
+                        uri = non_empty_lines[i + 1].strip()
+                    else:
+                        logger.info(f"Reached end of non-empty lines on page: {page_number + 1}")
+                        break
                 if i + 1 < len(non_empty_lines):
                     uri = non_empty_lines[i + 1].strip()
                 else:
@@ -40,12 +50,15 @@ def disassemble_pdf(pdf_filename):
                     while not uri.endswith('/') and i + 2 < len(non_empty_lines):
                         i += 1
                         uri += non_empty_lines[i + 1].strip()
+                    logger.info(f"Appending retailer data entry for brand: {brand}")
                     retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
                     i += 2
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
+                logger.info(f"Completed processing page: {page_number + 1}")
                 return retailer_data
+    logger.info(f"Completed disassembling PDF: {pdf_filename}")
 import logging
 
 logging.basicConfig(level=logging.INFO)
