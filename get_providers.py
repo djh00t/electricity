@@ -37,7 +37,7 @@ def extract_pdf_data(pdf_path):
     logger.debug(f"Opening PDF stream")
     logger.debug(f"Opening PDF file: {pdf_path}")
     retailer_data = []
-    with fitz.open("pdf", pdf_stream) as pdf:
+    with fitz.open(stream=pdf_stream, filetype="pdf") as pdf:
         for page_num in range(pdf.page_count):
             page = pdf.load_page(page_num)
             text = page.get_text("text")
@@ -84,7 +84,8 @@ def download_and_extract_pdf_data(url):
     pdf_response = requests.get(pdf_url)
     pdf_response.raise_for_status()
 
-    retailer_data = extract_pdf_data(pdf_response.content)
+    # Here we pass the PDF content directly as a stream
+    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))
     print(retailer_data)
 
 # The URL to fetch the PDF from
