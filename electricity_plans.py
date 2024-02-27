@@ -3,6 +3,9 @@ import os
 import requests
 import json
 from datetime import datetime
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def load_provider_urls(filename):
     with open(filename, newline='') as csvfile:
@@ -13,6 +16,7 @@ def load_provider_urls(filename):
 def fetch_plans(base_url, headers):
     page = 1
     plans = []
+    logging.info(f"Fetching plans for provider with base URL: {base_url}")
     while True:
         params = {
             'effective': 'CURRENT',
@@ -26,9 +30,11 @@ def fetch_plans(base_url, headers):
         plans_data = data.get('data', {}).get('plans', [])
         if plans_data:
             plans.extend(plans_data)
+            logging.info(f"Page {page}: Retrieved {len(plans_data)} plans")
         if page >= data['meta']['totalPages']:
             break
         page += 1
+    logging.info(f"Total plans fetched: {len(plans)}")
     return plans
 
 def save_plans_to_file(provider_name, plans):
@@ -40,13 +46,16 @@ def save_plans_to_file(provider_name, plans):
     if plans:  # If plans is not an empty list, write to file
         with open(filename, 'w') as file:
             file.write(json.dumps(plans, indent=4))
+        logging.info(f"Saved {len(plans)} plans for provider '{provider_name}' to '{filename}'")
     elif os.path.exists(filename):  # If plans is empty and file exists, delete the file
         os.remove(filename)
+        logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
     for brand, brand_url in provider_urls.items():
+        logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
         save_plans_to_file(brand, plans)
 
