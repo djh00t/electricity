@@ -67,8 +67,7 @@ def main():
     normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
 
 
-def main():
-    ...
+    # The rest of the main function code goes here, but it's not duplicated.
     args = parser.parse_args()
     filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
     normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
@@ -112,3 +111,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+    # Ensure this is the end of the main function and there are no duplicates.
