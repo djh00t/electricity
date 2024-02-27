@@ -25,7 +25,7 @@ def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
 
     # Extract brand and base URL for the given planId
-    brand, base_url = next((brand, url) for brand, url in provider_urls.items() if plan_id in url)
+    brand, base_url = next((brand, url) for brand, url in provider_urls.items() if args.planId in url)
 
     headers = {'x-v': '1'}
     plan_details = fetch_plan_details(base_url, headers, args.planId)
