@@ -39,6 +39,11 @@ def disassemble_pdf(pdf_filename):
                 retailer_data = []
                 for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
+                    # Skip placeholder entries
+                    if brand == 'Brand Name':
+                        i += 1
+                        continue
+                    uri = ''
                     if i + 1 < len(non_empty_lines):
                         uri = non_empty_lines[i + 1].strip()
                         # Concatenate broken lines for URI
@@ -50,22 +55,14 @@ def disassemble_pdf(pdf_filename):
                                 i += 1
                             else:
                                 break
-                        if uri:  # Ensure URI is not empty
-                            logger.info(f"Appending retailer data entry for brand: {brand}")
-                            retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
-                        i += 2
-                    else:
-                        break
-                    # Concatenate broken lines for URI
-                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                        uri += non_empty_lines[i + 2].strip()
-                        i += 1
-                    if uri:  # Ensure URI is not empty
+                    # Ensure URI is not empty and does not contain placeholder text
+                    if uri and 'Retailer Base URI' not in uri:
                         logger.info(f"Appending retailer data entry for brand: {brand}")
                         retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                    i += 2
                 # Remove the first list entry if it matches the specified pattern
-                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
-                    retailer_data.pop(0)
+                # Skip placeholder entries
+                retailer_data = [entry for entry in retailer_data if entry['brand'] != 'Brand Name' and 'Retailer Base URI' not in entry['uri']]
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
