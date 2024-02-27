@@ -81,7 +81,7 @@ def main():
         providers = get_providers_from_plans(filtered_plans)
 def main():
     # ... [rest of the main function code] ...
-    elif args.plans:
+    if args.plans:
         plan_names = get_plan_names_from_plans(filtered_plans)
         plan_filenames = [f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json" for plan in plan_names]
         refresh_plan_info = check_refresh_plan(plan_filenames)
