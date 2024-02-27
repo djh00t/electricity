@@ -13,7 +13,7 @@ def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         for page_number in range(len(pdf)):
             page = pdf[page_number]
-            #print(f"--- Page {page_number + 1} ---")
+            # print(f"--- Page {page_number + 1} ---")
             text = page.get_text("text")
             lines = text.split('\n')
             # Find the index of the line containing "Energy Retailer Base URIs"
@@ -26,15 +26,15 @@ def disassemble_pdf(pdf_filename):
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                return non_empty_lines
+                print('\n'.join(non_empty_lines))
             else:
                 # If the "Change log" line is found, only take lines up to that line
                 if end_index is not None:
                     lines = lines[:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                return non_empty_lines
-    return []  # Return an empty list if no content is found
+                print('\n'.join(non_empty_lines))
+    return non_empty_lines
 
 def download_first_pdf(url):
     # Send a GET request to the URL
@@ -65,7 +65,8 @@ def download_first_pdf(url):
         print("No PDF link found on the page.")
 
     # Disassemble the PDF to show its internal "code"
-    table_content = disassemble_pdf(pdf_filename) or []
+    table_content = disassemble_pdf(pdf_filename)
+    print(table_content)
 
     # Turn table_content into comma separated list by taking every second line
     # and making it the second column of the previous line and saving it as
