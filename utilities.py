@@ -1,3 +1,4 @@
+import os
 import csv
 
 def load_provider_urls(filename):
