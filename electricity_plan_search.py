@@ -19,16 +19,22 @@ def get_providers_from_plans(filtered_plans):
     return list(set(plan.get('brandName') for plan in filtered_plans))
 
 def get_plan_names_from_plans(filtered_plans):
-    return [plan.get('displayName') for plan in filtered_plans]
+    return [{
+        'displayName': plan.get('displayName'),
+        'planId': plan.get('planId'),
+        'fuelType': plan.get('fuelType'),
+        'distributors': plan.get('geography', {}).get('distributors', []),
+        'customerType': plan.get('customerType')
+    } for plan in filtered_plans]
 
 def output_results_as_json(results):
     print(json.dumps(results, indent=4))
 
 def output_results_as_csv(results, header):
-    writer = csv.writer(sys.stdout)
-    writer.writerow(header)
+    writer = csv.DictWriter(sys.stdout, fieldnames=header)
+    writer.writeheader()
     for row in results:
-        writer.writerow([row])
+        writer.writerow(row)
 
 def output_results_as_text(results, header):
     print(tabulate([[row] for row in results], headers=header, tablefmt='grid'))
@@ -61,9 +67,9 @@ def main():
         if args.json:
             output_results_as_json(plan_names)
         elif args.csv:
-            output_results_as_csv(plan_names, ['Plan Name'])
+            output_results_as_csv(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
         else:  # Default to text output
-            output_results_as_text(plan_names, ['Plan Name'])
+            output_results_as_text(plan_names, ['Display Name', 'Plan ID', 'Fuel Type', 'Distributors', 'Customer Type'])
 
 if __name__ == '__main__':
     main()
