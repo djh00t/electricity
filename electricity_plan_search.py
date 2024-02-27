@@ -6,6 +6,7 @@ import csv
 import subprocess
 from tabulate import tabulate
 from electricity_plan_detail import fetch_plan_details, save_plan_details
+from electricity_plan_detail import should_refresh_plan
 import sys
 import logging
 
