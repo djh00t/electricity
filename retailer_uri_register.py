@@ -25,7 +25,7 @@ def disassemble_pdf(pdf_filename):
         for page_number in range(len(pdf)):
             page = pdf[page_number]
             print(f"--- Page {page_number + 1} ---")
-            print(page.get_text("html"))
+            print(page.get_text("text"))
 
 def download_first_pdf(url):
     # Send a GET request to the URL
