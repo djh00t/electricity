@@ -5,7 +5,7 @@ import json
 import csv
 import subprocess
 from tabulate import tabulate
-from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans, DETAIL_THREADS
+from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
 from concurrent.futures import ProcessPoolExecutor
 import sys
 import logging
@@ -38,7 +38,7 @@ def output_results_as_csv(results, header):
 def output_results_as_text(results):
     print(tabulate(results, headers='keys', tablefmt='grid'))
 
-from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans, DETAIL_THREADS
+from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
 from concurrent.futures import ProcessPoolExecutor
 
 def main():
@@ -55,25 +55,20 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    plans_data = load_plans_from_all_brands()
+    def load_plans_from_all_brands():
+        plans_data = []
+        for brand_directory in os.listdir('brands'):
+            plans_file = ensure_brand_directory(brand_directory) + '/plans.json'
+            if os.path.isfile(plans_file):
+                with open(plans_file, 'r') as file:
+                    plans_data.extend(json.load(file))
+        return plans_data
+
+    plans_data = load_plans_from_all_brands()    
     filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
-    normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
     headers = {'x-v': '1'}
-
-    if args.providers:
-        providers = get_providers_from_plans(filtered_plans)
-        # ... [rest of the if args.providers block] ...
-    elif args.plans:
-        plan_names = get_plan_names_from_plans(filtered_plans)
-        plan_filenames = [f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json" for plan in plan_names]
-        refresh_plan_info = should_refresh_plans(plan_filenames)
-        plans_to_download = [(plan['brandName'], plan['planId'], normalized_provider_urls.get(plan['brandName'].lower().replace(' ', '_')), headers)
-                             for plan in plan_names if refresh_plan_info.get(f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json")]
-        with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
-            executor.map(download_and_save_plan_details, plans_to_download)
-        # ... [rest of the elif args.plans block] ...
-    # ... [rest of the main function code] ...
+    normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
 
 
     # The rest of the main function code goes here, but it's not duplicated.
@@ -84,17 +79,14 @@ def main():
 
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
-def main():
-    # ... [rest of the main function code] ...
-    if args.plans:
+    elif args.plans:
         plan_names = get_plan_names_from_plans(filtered_plans)
         plan_filenames = [f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json" for plan in plan_names]
-        refresh_plan_info = check_refresh_plan(plan_filenames)
+        refresh_plan_info = should_refresh_plans(plan_filenames)
         plans_to_download = [(plan['brandName'], plan['planId'], normalized_provider_urls.get(plan['brandName'].lower().replace(' ', '_')), headers)
                              for plan in plan_names if refresh_plan_info.get(f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json")]
         with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
             executor.map(download_and_save_plan_details, plans_to_download)
-    # ... [rest of the output code] ...
     else:
         logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
 
