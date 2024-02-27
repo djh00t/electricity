@@ -71,10 +71,14 @@ def disassemble_pdf(pdf_filename):
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
-                return retailer_data
+                return retailer_dataimport logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def download_first_pdf(url):
     # Send a GET request to the URL
+    logger.info(f"Sending GET request to URL: {url}")
     response = requests.get(url, allow_redirects=True, stream=True)
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()
@@ -89,9 +93,11 @@ def download_first_pdf(url):
     if pdf_link:
         # Construct the full URL for the PDF link
         pdf_url = urllib.parse.urljoin(response.url, pdf_link['href'])
+        logger.info(f"Found PDF URL: {pdf_url}")
         # Get the PDF file name
         pdf_filename = 'retailer_uri_register.pdf'
         # Download the PDF
+        logger.info(f"Downloading PDF: {pdf_filename}")
         pdf_response = requests.get(pdf_url)
         pdf_response.raise_for_status()
         # Save the PDF to a file
@@ -99,9 +105,11 @@ def download_first_pdf(url):
             f.write(pdf_response.content)
         # print(f"PDF downloaded: {pdf_filename}")
     else:
+        logger.warning("No PDF link found on the page.")
         print("No PDF link found on the page.")
 
     # Disassemble the PDF to show its internal "code"
+    logger.info(f"Disassembling PDF: {pdf_filename}")
     table_content = disassemble_pdf(pdf_filename)
     print(table_content)
 
