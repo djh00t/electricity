@@ -5,35 +5,20 @@ import os
 import fitz  # PyMuPDF
 
 def extract_table_from_pdf(pdf_filename):
-    # Open the PDF file and prepare to extract the table
-    with fitz.open(pdf_filename) as pdf_document:
-        table_content = []
-        headers_encountered = False
-        change_log_encountered = False
-        for page_number in range(len(pdf_document)):
-            page = pdf_document[page_number]
-            text_instances = page.search_for("Brand Name")
-            if text_instances:
-                top_left_x = text_instances[0][0]
-                top_left_y = text_instances[0][1]
-                for block in page.get_text("dict")["blocks"]:
-                    if "lines" in block:
-                        for line in block["lines"]:
-                            row_data = [span["text"].strip() for span in line["spans"] if span["text"].strip()]
-                            if row_data:
-                                bottom_right_y = line["bbox"][3]
-                                if bottom_right_y > top_left_y:
-                                    headers_encountered = True
-                                if headers_encountered and 'Change log' in row_data:
-                                    change_log_encountered = True
-                                    break
-                                if headers_encountered and not change_log_encountered:
-                                    table_content.append(row_data)
-                    if change_log_encountered:
-                        break
-            if change_log_encountered:
-                break
-        return table_content
+    # Open the PDF file
+    with fitz.open(pdf_filename) as pdf:
+        table_content = []  # List to store all rows of the table
+        for page in pdf:  # Iterate over each page
+            blocks = page.get_text("dict")["blocks"]  # Get the text blocks
+            for b in blocks:  # Iterate over each block
+                if "lines" in b:  # Check if the block contains lines
+                    for line in b["lines"]:  # Iterate over each line
+                        spans = line["spans"]  # Get the spans in the line
+                        if len(spans) > 1:  # Check if there are multiple spans (likely a table row)
+                            row = [s["text"].strip() for s in spans if s["text"].strip()]  # Extract text from each span
+                            if row:  # If there is text, add it as a table row
+                                table_content.append(row)
+        return table_content  # Return the extracted table content
 
 def download_first_pdf(url):
     # Send a GET request to the URL
