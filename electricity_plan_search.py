@@ -5,7 +5,8 @@ import json
 import csv
 import subprocess
 from tabulate import tabulate
-from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans
+from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans, DETAIL_THREADS
+from concurrent.futures import ProcessPoolExecutor
 import sys
 import logging
 
@@ -36,6 +37,12 @@ def output_results_as_csv(results, header):
 
 def output_results_as_text(results):
     print(tabulate(results, headers='keys', tablefmt='grid'))
+
+def download_and_save_plan_details(plan_info):
+    brand_name, plan_id, base_url, headers = plan_info
+    plan_details = fetch_plan_details(base_url, headers, plan_id)
+    save_plan_details(brand_name, plan_id, plan_details)
+    logging.info(f"Plan details for plan ID '{plan_id}' were downloaded and saved.")
 
 def main():
     parser = argparse.ArgumentParser(description='Search for electricity plans by postcode.')
@@ -79,18 +86,10 @@ def main():
         plan_names = get_plan_names_from_plans(filtered_plans)
         plan_filenames = [f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json" for plan in plan_names]
         refresh_plan_info = should_refresh_plans(plan_filenames)
-        for plan in plan_names:
-            brand_name = plan['brandName']
-            plan_id = plan['planId']
-            normalized_brand_name = brand_name.lower().replace(' ', '_')
-            base_url = normalized_provider_urls.get(normalized_brand_name)
-            if base_url:
-                plan_filename = f"{ensure_brand_directory(brand_name)}/{plan_id}.json"
-                if refresh_plan_info.get(plan_filename):
-                    plan_details = fetch_plan_details(base_url, headers, plan_id)
-                    save_plan_details(brand_name, plan_id, plan_details)
-            else:
-                logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
+        plans_to_download = [(plan['brandName'], plan['planId'], normalized_provider_urls.get(plan['brandName'].lower().replace(' ', '_')), headers)
+                             for plan in plan_names if refresh_plan_info.get(f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json")]
+        with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
+            executor.map(download_and_save_plan_details, plans_to_download)
     else:
         logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
 
