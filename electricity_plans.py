@@ -1,5 +1,5 @@
-from utilities import load_provider_urls
 import os
+from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import requests
 import json
@@ -45,10 +45,7 @@ def fetch_plans(base_url, headers):
     return plans
 
 def save_plans_to_file(provider_name, plans):
-    base_directory = "brands"
-    directory = f"{base_directory}/{provider_name.replace(' ', '_')}"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
+    directory = ensure_brand_directory(provider_name)
     filename = f"{directory.replace(' ', '_')}/plans.json"
     if plans:  # If plans is not an empty list, write to file
         with open(filename, 'w') as file:

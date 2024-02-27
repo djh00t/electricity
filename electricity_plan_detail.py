@@ -1,5 +1,5 @@
 import argparse, sys
-import os
+from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
 import requests
@@ -17,9 +17,7 @@ def setup_logging(debug):
 from utilities import load_provider_urls
 
 def save_plan_details(brand, plan_id, plan_details):
-    brand_directory = f"plans/{brand}"
-    if not os.path.exists(brand_directory):
-        os.makedirs(brand_directory)
+    brand_directory = ensure_brand_directory(brand)
     filename = f"{brand_directory}/{plan_id}.json"
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
