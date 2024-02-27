@@ -13,8 +13,9 @@ def download_first_pdf(url):
 
     # Parse the HTML content
     soup = BeautifulSoup(response.text, 'html.parser')
-    # Find the first PDF link on the page
-    pdf_link = soup.find('a', href=True, text=lambda x: x and x.endswith('.pdf'))
+    # Find the first PDF link within an h3 with class "card__title file__title"
+    # and the href has attributes type="application/pdf" and class="stretched-link"
+    pdf_link = soup.find('h3', class_='card__title file__title').find('a', href=True, type="application/pdf", class_="stretched-link")
     if pdf_link:
         # Construct the full URL for the PDF link
         pdf_url = urllib.parse.urljoin(response.url, pdf_link['href'])
