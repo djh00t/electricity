@@ -1,4 +1,4 @@
-import argparse
+import argparse, os
 from utilities import ensure_brand_directory
 import logging
 import json
