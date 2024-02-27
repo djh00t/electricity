@@ -8,6 +8,7 @@ def extract_table_from_pdf(pdf_filename):
     # Open the PDF file
     pdf_document = fitz.open(pdf_filename)
     table_content = []
+    change_log_encountered = False
     # Iterate over each page in the PDF
     for page_number in range(len(pdf_document)):
         page = pdf_document[page_number]
@@ -17,11 +18,13 @@ def extract_table_from_pdf(pdf_filename):
             if "lines" in block:
                 for line in block["lines"]:
                     row_data = [span["text"].strip() for span in line["spans"]]
+                    if ['Change log'] in row_data:
+                        change_log_encountered = True
+                        break
                     table_content.append(row_data)
+            if change_log_encountered:
+                break
         # Check if we've reached the "Change log" section and stop if we have
-        text = page.get_text("text")
-        if "Change log" in text:
-            break
     pdf_document.close()
     return table_content
 
