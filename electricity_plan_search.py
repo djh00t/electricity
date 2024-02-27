@@ -37,7 +37,7 @@ def output_results_as_csv(results, header):
         writer.writerow(row)
 
 def output_results_as_text(results, header):
-    print(tabulate([[row] for row in results], headers=header, tablefmt='grid'))
+    print(tabulate(results, headers=header, tablefmt='grid'))
 
 def main():
     parser = argparse.ArgumentParser(description='Search for electricity plans by postcode.')
