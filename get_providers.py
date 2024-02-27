@@ -1,4 +1,20 @@
 
+"""
+This script is used to download and extract retailer information from a specified PDF file.
+The PDF is expected to contain retailer names and their corresponding base URIs.
+
+The script performs the following steps:
+1. Download the PDF from a given URL.
+2. Extract retailer data from the PDF.
+3. Print the extracted data to the console.
+
+Usage:
+    Simply run the script, and it will perform the download and extraction automatically.
+    The URL from which the PDF is downloaded is hardcoded in the script.
+
+Example:
+    python get_providers.py
+"""
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
