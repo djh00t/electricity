@@ -18,7 +18,8 @@ def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         logger.info(f"PDF file opened successfully: {pdf_filename}")
         retailer_data = []
-        for page_number in range(len(pdf)):
+        for page_number in range(pdf.page_count):
+            logger.info(f"Processing page: {page_number + 1}/{pdf.page_count}")
             logger.info(f"Processing page: {page_number + 1}/{len(pdf)}")
             page = pdf[page_number]
 
@@ -30,6 +31,7 @@ def disassemble_pdf(pdf_filename):
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
             if start_index is not None:
+            if start_index is not None and end_index is not None:
                 logger.info(f"Found 'Retailer Base URI' on page: {page_number + 1}")
                 # If the "Change log" line is found, only take lines up to that line
                 content_after_title = lines[start_index + 1:end_index]
@@ -40,35 +42,21 @@ def disassemble_pdf(pdf_filename):
                 for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
                     # Skip placeholder entries
-                page_retailer_data = []
-                i = 0
-                while i < len(non_empty_lines):
+                for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
-                    # Skip placeholder entries and incorrect brand names
-                    if brand == 'Brand Name' or brand.endswith('/'):
-                        i += 1
-                        continue
-                    uri = ''
-                    if i + 1 < len(non_empty_lines):
-                        uri = non_empty_lines[i + 1].strip()
-                        # Concatenate broken lines for URI
-                        while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                            next_line = non_empty_lines[i + 2].strip()
-                            # Check if the next line is likely part of the URI
-                            if not next_line.lower().startswith('http'):
-                                uri += next_line
-                                i += 1
-                            else:
-                                break
-                    # Ensure URI is not empty and does not contain placeholder text
+                    uri = non_empty_lines[i + 1].strip() if i + 1 < len(non_empty_lines) else ''
+                    # Concatenate broken lines for URI
+                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
+                        next_line = non_empty_lines[i + 2].strip()
+                        if not next_line.lower().startswith('http'):
+                            uri += ' ' + next_line
+                            i += 1
+                        else:
+                            break
                     # Ensure URI is not empty, does not contain placeholder text, and is a valid URI
                     if uri and 'Retailer Base URI' not in uri and uri.lower().startswith('http'):
-                        logger.info(f"Appending retailer data entry for brand: {brand}")
-                        page_retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                        retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
                     i += 2
-                # Remove the first list entry if it matches the specified pattern
-                # Skip placeholder entries
-                retailer_data.extend([entry for entry in page_retailer_data if entry['brand'] != 'Brand Name' and 'Retailer Base URI' not in entry['uri']])
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
