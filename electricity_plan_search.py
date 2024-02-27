@@ -45,12 +45,9 @@ def output_results_as_text(results):
     print(tabulate(results, headers='keys', tablefmt='grid'))
 
 def main():
-    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging')
-    args = parser.parse_args()
 
-    if args.debug:
-        logging.getLogger().setLevel(logging.DEBUG)
+    logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
     parser = argparse.ArgumentParser(description='Search for electricity plans by postcode.')
     parser.add_argument('--postcode', required=True, type=str, help='Postcode to filter plans by.')
     group = parser.add_mutually_exclusive_group(required=True)
