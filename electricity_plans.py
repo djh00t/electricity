@@ -4,8 +4,16 @@ import requests
 import json
 from datetime import datetime
 import logging
+import argparse
 
-logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', action='store_true', help='Enable debug logging')
+args = parser.parse_args()
+
+if args.debug:
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+else:
+    logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 def load_provider_urls(filename):
     with open(filename, newline='') as csvfile:
