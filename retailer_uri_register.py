@@ -20,7 +20,6 @@ def disassemble_pdf(pdf_filename):
         retailer_data = []
         for page_number in range(pdf.page_count):
             logger.info(f"Processing page: {page_number + 1}/{pdf.page_count}")
-            logger.info(f"Processing page: {page_number + 1}/{len(pdf)}")
             page = pdf[page_number]
 
             text = page.get_text("text")
@@ -30,7 +29,6 @@ def disassemble_pdf(pdf_filename):
             # Find the index of the line containing "Change log"
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
-            if start_index is not None:
             if start_index is not None and end_index is not None:
                 logger.info(f"Found 'Retailer Base URI' on page: {page_number + 1}")
                 # If the "Change log" line is found, only take lines up to that line
