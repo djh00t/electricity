@@ -26,10 +26,8 @@ def disassemble_pdf(pdf_filename):
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                # Convert the non_empty_lines into a list of dictionaries
-                retailer_data = []
-                for i in range(0, len(non_empty_lines), 2):
-                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                # Clean up URIs and convert the non_empty_lines into a list of dictionaries
+                retailer_data = [{'brand': non_empty_lines[i].strip(), 'uri': non_empty_lines[i + 1].replace('\n', '').replace(' ', '').strip()} for i in range(0, len(non_empty_lines), 2)]
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
@@ -40,10 +38,8 @@ def disassemble_pdf(pdf_filename):
                     lines = lines[:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                # Convert the non_empty_lines into a list of dictionaries
-                retailer_data = []
-                for i in range(0, len(non_empty_lines), 2):
-                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                # Clean up URIs and convert the non_empty_lines into a list of dictionaries
+                retailer_data = [{'brand': non_empty_lines[i].strip(), 'uri': non_empty_lines[i + 1].replace('\n', '').replace(' ', '').strip()} for i in range(0, len(non_empty_lines), 2)]
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
