@@ -54,10 +54,15 @@ def save_plans_to_file(provider_name, plans):
 def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
+    total_providers = 0
+    total_plans = 0
     for brand, brand_url in provider_urls.items():
         logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
         save_plans_to_file(brand, plans)
+        total_providers += 1
+        total_plans += len(plans)
+    logging.info(f"Finished processing. Total providers: {total_providers}, Total plans: {total_plans}")
 
 if __name__ == '__main__':
     main()
