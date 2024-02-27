@@ -1,5 +1,5 @@
 import argparse, os
-from utilities import ensure_brand_directory
+from utilities import ensure_brand_directory, load_provider_urls
 import logging
 import json
 import csv
