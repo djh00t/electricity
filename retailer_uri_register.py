@@ -5,35 +5,35 @@ import os
 import fitz  # PyMuPDF
 
 def extract_table_from_pdf(pdf_filename):
-    # Open the PDF file
-    pdf_document = fitz.open(pdf_filename)
-    table_content = []
-    headers_encountered = False
-    change_log_encountered = False
-    # Iterate over each page in the PDF
-    for page_number in range(len(pdf_document)):
-        page = pdf_document[page_number]
-        # Extract all text that is formatted as a table
-        blocks = page.get_text("dict")["blocks"]
-        for block in blocks:
-            if "lines" in block:
-                for line in block["lines"]:
-                    row_data = [span["text"].strip() for span in line["spans"]]
-                    if not headers_encountered and 'Brand Name' in row_data and 'Retailer Base URI' in row_data[1:]:
-                        headers_encountered = True
-                        continue
-                    elif headers_encountered and 'Change log' in row_data:
-                        change_log_encountered = True
+    # Open the PDF file and prepare to extract the table
+    with fitz.open(pdf_filename) as pdf_document:
+        table_content = []
+        headers_encountered = False
+        change_log_encountered = False
+        for page_number in range(len(pdf_document)):
+            page = pdf_document[page_number]
+            text_instances = page.search_for("Brand Name")
+            if text_instances:
+                top_left_x = text_instances[0][0]
+                top_left_y = text_instances[0][1]
+                for block in page.get_text("dict")["blocks"]:
+                    if "lines" in block:
+                        for line in block["lines"]:
+                            row_data = [span["text"].strip() for span in line["spans"] if span["text"].strip()]
+                            if row_data:
+                                bottom_right_y = line["bbox"][3]
+                                if bottom_right_y > top_left_y:
+                                    headers_encountered = True
+                                if headers_encountered and 'Change log' in row_data:
+                                    change_log_encountered = True
+                                    break
+                                if headers_encountered and not change_log_encountered:
+                                    table_content.append(row_data)
+                    if change_log_encountered:
                         break
-                    if headers_encountered:
-                        if not change_log_encountered:
-                            table_content.append(row_data)
-                        table_content.append(row_data)
             if change_log_encountered:
                 break
-        # Check if we've reached the "Change log" section and stop if we have
-    pdf_document.close()
-    return table_content
+        return table_content
 
 def download_first_pdf(url):
     # Send a GET request to the URL
