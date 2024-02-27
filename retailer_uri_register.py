@@ -18,7 +18,7 @@ def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         logger.info(f"PDF file opened successfully: {pdf_filename}")
         retailer_data = []
-        for page_number in range(len(pdf)):
+        for page_number in range(len(pdf)):  # Loop through all pages
             logger.info(f"Processing page: {page_number + 1}/{len(pdf)}")
             page = pdf[page_number]
 
@@ -30,6 +30,7 @@ def disassemble_pdf(pdf_filename):
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
             if start_index is not None:
+            if start_index is not None and end_index is not None:
                 logger.info(f"Found 'Retailer Base URI' on page: {page_number + 1}")
                 # If the "Change log" line is found, only take lines up to that line
                 content_after_title = lines[start_index + 1:end_index]
@@ -69,6 +70,8 @@ def disassemble_pdf(pdf_filename):
                 # Remove the first list entry if it matches the specified pattern
                 # Skip placeholder entries
                 retailer_data.extend([entry for entry in page_retailer_data if entry['brand'] != 'Brand Name' and 'Retailer Base URI' not in entry['uri']])
+            else:
+                logger.warning(f"'Retailer Base URI' or 'Change log' not found on page: {page_number + 1}")
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
