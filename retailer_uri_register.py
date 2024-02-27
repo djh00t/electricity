@@ -35,15 +35,15 @@ def disassemble_pdf(pdf_filename):
             if start_index != -1:
                 # If the "Change log" line is found, only take lines up to that line
                 content_after_title = lines[start_index + 1:end_index]
-                # Filter out lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in content_after_title if line.strip() and not line.strip().isdigit()]
+                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
+                non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
                 print('\n'.join(non_empty_lines))
             else:
                 # If the "Change log" line is found, only take lines up to that line
                 if end_index is not None:
                     lines = lines[:end_index]
-                # Filter out lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in lines if line.strip() and not line.strip().isdigit()]
+                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
+                non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
                 print('\n'.join(non_empty_lines))
 
 def download_first_pdf(url):
