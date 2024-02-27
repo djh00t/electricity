@@ -37,7 +37,7 @@ def fetch_plans(base_url, headers):
         plans_data = data.get('data', {}).get('plans', [])
         if plans_data:
             plans.extend(plans_data)
-            logging.info(f"Page {page}: Retrieved {len(plans_data)} plans")
+            logging.debug(f"Page {page}: Retrieved {len(plans_data)} plans")
         if page >= data['meta']['totalPages']:
             break
         page += 1
