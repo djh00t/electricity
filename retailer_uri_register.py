@@ -20,6 +20,13 @@ def extract_table_from_pdf(pdf_filename):
                                 table_content.append(row)
         return table_content  # Return the extracted table content
 
+def disassemble_pdf(pdf_filename):
+    with fitz.open(pdf_filename) as pdf:
+        for page_number in range(len(pdf)):
+            page = pdf[page_number]
+            print(f"--- Page {page_number + 1} ---")
+            print(page.get_text("rawdict"))
+
 def download_first_pdf(url):
     # Send a GET request to the URL
     response = requests.get(url, allow_redirects=True, stream=True)
@@ -51,6 +58,9 @@ def download_first_pdf(url):
         print(table_content)
     else:
         print("No PDF link found on the page.")
+
+    # Disassemble the PDF to show its internal "code"
+    disassemble_pdf(pdf_filename)
 
 # URL of the AER retailer base URIs page
 url = 'https://www.aer.gov.au/documents/consumer-data-right-list-energy-retailer-base-uris-june-2023'
