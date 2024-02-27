@@ -32,14 +32,16 @@ def fetch_plans(base_url, headers):
     return plans
 
 def save_plans_to_file(provider_name, plans):
-    if plans:  # Only save if plans is not an empty list
-        directory = "plans"
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-        date_str = datetime.now().strftime('%Y%m%d')
-        filename = f"{directory}/{date_str}_{provider_name.replace(' ', '_')}.json"
-        with open(filename, 'w') as f:
-            f.write(json.dumps(plans, indent=4))
+    directory = "plans"
+    if not os.path.exists(directory):
+        os.makedirs(directory)
+    date_str = datetime.now().strftime('%Y%m%d')
+    filename = f"{directory}/{date_str}_{provider_name.replace(' ', '_')}.json"
+    if plans:  # If plans is not an empty list, write to file
+        with open(filename, 'w') as file:
+            file.write(json.dumps(plans, indent=4))
+    elif os.path.exists(filename):  # If plans is empty and file exists, delete the file
+        os.remove(filename)
 
 def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
