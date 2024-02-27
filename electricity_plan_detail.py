@@ -5,6 +5,9 @@ from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
 import requests
+from datetime import datetime, timezone, timedelta
+
+REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
 
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
@@ -20,10 +23,23 @@ from utilities import load_provider_urls
 def save_plan_details(brand_name, plan_id, plan_details):
     brand_directory = ensure_brand_directory(brand_name)
     filename = f"{brand_directory}/{plan_id}.json"
-    last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-    plan_details['meta'] = {'lastDownloaded': last_downloaded}
-    with open(filename, 'w') as file:
-        json.dump(plan_details, file, indent=4)
+    if should_refresh_plan(filename):
+        last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+        plan_details['meta'] = {'lastDownloaded': last_downloaded}
+        with open(filename, 'w') as file:
+            json.dump(plan_details, file, indent=4)
+
+def should_refresh_plan(filename):
+    if not os.path.exists(filename):
+        return True
+    with open(filename, 'r') as file:
+        plan_data = json.load(file)
+    last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
+    if last_downloaded_str:
+        last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z")
+        if datetime.now(timezone.utc) - last_downloaded > timedelta(days=REFRESH_DAYS):
+            return True
+    return False
 
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
@@ -63,7 +79,8 @@ def main():
 
     headers = {'x-v': '1'}
     plan_details = fetch_plan_details(base_url, headers, args.planId)
-    save_plan_details(brand, args.planId, plan_details)
+    if should_refresh_plan(f"{ensure_brand_directory(brand)}/{args.planId}.json"):
+        save_plan_details(brand, args.planId, plan_details)
     save_plan_details(brand, args.planId, plan_details)
 
 if __name__ == '__main__':
