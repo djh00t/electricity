@@ -13,18 +13,16 @@ def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         for page_number in range(len(pdf)):
             page = pdf[page_number]
-            # print(f"--- Page {page_number + 1} ---")
             text = page.get_text("text")
             lines = text.split('\n')
             # Find the index of the line containing "Retailer Base URI"
-            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), None)
+            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), -1)
             # Find the index of the line containing "Change log"
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
-            if start_index is not None:
             if start_index != -1:
                 # If the "Change log" line is found, only take lines up to that line
-                content_after_title = lines[start_index + 2:end_index]  # Start from the line after "Retailer Base URI"
+                content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
                 # Convert the non_empty_lines into a list of dictionaries
