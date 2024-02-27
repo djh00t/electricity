@@ -4,6 +4,7 @@ import urllib.parse
 import os
 # Uninstall the incompatible fitz library
 # pip uninstall fitz
+# pip uninstall pymupdf
 # Reinstall the fitz library with the correct architecture
 # pip install --no-cache-dir pymupdf
 import fitz  # PyMuPDF
