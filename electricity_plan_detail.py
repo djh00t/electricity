@@ -38,11 +38,11 @@ def main():
             plans_file = os.path.join(brand_path, 'plans.json')
             if os.path.exists(plans_file):
                 with open(plans_file, 'r') as file:
-                plans = json.load(file)
-                for plan in plans:
-                    if plan.get('planId') == args.planId:
-                        brand = plan.get('brandName')
-                        break
+                    plans = json.load(file)
+                    for plan in plans:
+                        if plan.get('planId') == args.planId:
+                            brand = plan.get('brandName')
+                            break
         if brand:
             break
 
