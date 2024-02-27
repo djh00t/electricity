@@ -40,7 +40,12 @@ def disassemble_pdf(pdf_filename):
                 for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
                     # Skip placeholder entries
-                    if brand == 'Brand Name':
+                retailer_data = []
+                i = 0
+                while i < len(non_empty_lines):
+                    brand = non_empty_lines[i].strip()
+                    # Skip placeholder entries and incorrect brand names
+                    if brand == 'Brand Name' or brand.endswith('/'):
                         i += 1
                         continue
                     uri = ''
@@ -56,7 +61,8 @@ def disassemble_pdf(pdf_filename):
                             else:
                                 break
                     # Ensure URI is not empty and does not contain placeholder text
-                    if uri and 'Retailer Base URI' not in uri:
+                    # Ensure URI is not empty, does not contain placeholder text, and is a valid URI
+                    if uri and 'Retailer Base URI' not in uri and uri.lower().startswith('http'):
                         logger.info(f"Appending retailer data entry for brand: {brand}")
                         retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
                     i += 2
