@@ -19,7 +19,7 @@ from utilities import load_provider_urls
 
 def save_plan_details(brand_name, plan_id, plan_details):
     brand_directory = ensure_brand_directory(brand_name)
-    filename = f"{brand_directory}/{datetime.now().strftime('%Y%m%d')}_{plan_id}.json"
+    filename = f"{brand_directory}/{plan_id}.json"
     last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     plan_details['meta'] = {'lastDownloaded': last_downloaded}
     with open(filename, 'w') as file:
