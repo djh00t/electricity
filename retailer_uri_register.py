@@ -33,25 +33,6 @@ def disassemble_pdf(pdf_filename):
                                     return retailer_data
                                 if brand and uri and "www.aer.gov.au/cdr" not in uri:
                                     retailer_data.append({'brand': brand, 'uri': uri})
-        start_processing = False
-        for line in lines:
-            if "Retailer Base URI" in line:
-                start_processing = True
-                continue
-            if start_processing:
-                if "Change log" in line:
-                    break
-                # Process the structured text to extract table data
-                blocks = page.get_text("dict")["blocks"]
-                for b in blocks:
-                    if "lines" in b:
-                        for line in b["lines"]:
-                            spans = line["spans"]
-                            if len(spans) >= 2:
-                                brand = spans[0]["text"].strip()
-                                uri = spans[1]["text"].strip()
-                                if brand and uri and "www.aer.gov.au/cdr" not in uri:
-                                    retailer_data.append({'brand': brand, 'uri': uri})
     return retailer_data
 
 def download_first_pdf(url):
