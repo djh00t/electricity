@@ -23,7 +23,9 @@ def fetch_plans(base_url, headers):
         }
         response = requests.get(f"{base_url}cds-au/v1/energy/plans", headers=headers, params=params)
         data = response.json()
-        plans.extend(data['data'])
+        plans_data = data.get('data', {}).get('plans', [])
+        if plans_data:
+            plans.extend(plans_data)
         if page >= data['meta']['totalPages']:
             break
         page += 1
