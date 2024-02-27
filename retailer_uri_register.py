@@ -46,13 +46,13 @@ def disassemble_pdf(pdf_filename):
                     uri = non_empty_lines[i + 1].strip()
                 else:
                     break
-                    # Check if URI is broken over multiple lines
-                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                        i += 1
-                        uri += non_empty_lines[i + 1].strip()
-                    logger.info(f"Appending retailer data entry for brand: {brand}")
-                    retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
-                    i += 2
+                # Check if URI is broken over multiple lines
+                while not uri.endswith('/') and i + 2 < len(non_empty_lines):
+                    i += 1
+                    uri += non_empty_lines[i + 1].strip()
+                logger.info(f"Appending retailer data entry for brand: {brand}")
+                retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                i += 2
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
