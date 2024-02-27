@@ -5,7 +5,7 @@ import json
 import csv
 import subprocess
 from tabulate import tabulate
-from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
+from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans, DETAIL_THREADS
 from concurrent.futures import ProcessPoolExecutor
 import sys
 import logging
@@ -38,7 +38,7 @@ def output_results_as_csv(results, header):
 def output_results_as_text(results):
     print(tabulate(results, headers='keys', tablefmt='grid'))
 
-from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
+from electricity_plan_detail import fetch_plan_details, save_plan_details, should_refresh_plans, DETAIL_THREADS
 from concurrent.futures import ProcessPoolExecutor
 
 def main():
@@ -79,14 +79,17 @@ def main():
 
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
+def main():
+    # ... [rest of the main function code] ...
     elif args.plans:
         plan_names = get_plan_names_from_plans(filtered_plans)
         plan_filenames = [f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json" for plan in plan_names]
-        refresh_plan_info = should_refresh_plans(plan_filenames)
+        refresh_plan_info = check_refresh_plan(plan_filenames)
         plans_to_download = [(plan['brandName'], plan['planId'], normalized_provider_urls.get(plan['brandName'].lower().replace(' ', '_')), headers)
                              for plan in plan_names if refresh_plan_info.get(f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json")]
         with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
             executor.map(download_and_save_plan_details, plans_to_download)
+    # ... [rest of the output code] ...
     else:
         logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
 
