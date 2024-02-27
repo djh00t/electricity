@@ -12,10 +12,27 @@ import fitz  # PyMuPDF
 def disassemble_pdf(pdf_filename):
     retailer_data = []
     with fitz.open(pdf_filename) as pdf:
-        text = ""
+        pages_text = []
         for page in pdf:
-            text += page.get_text("dict")  # Use 'dict' output to get text in a structured format
-        lines = text.split('\n')
+            pages_text.append(page.get_text("dict"))  # Append the dict output to the pages_text list
+        for page_text in pages_text:  # Iterate over each page's text
+            blocks = page_text["blocks"]
+            start_processing = False
+            for b in blocks:
+                if "lines" in b:
+                    for line in b["lines"]:
+                        spans = line["spans"]
+                        if len(spans) >= 2:
+                            brand = spans[0]["text"].strip()
+                            uri = spans[1]["text"].strip()
+                            if "Retailer Base URI" in brand:
+                                start_processing = True
+                                continue
+                            if start_processing:
+                                if "Change log" in brand:
+                                    return retailer_data
+                                if brand and uri and "www.aer.gov.au/cdr" not in uri:
+                                    retailer_data.append({'brand': brand, 'uri': uri})
         start_processing = False
         for line in lines:
             if "Retailer Base URI" in line:
