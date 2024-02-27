@@ -22,11 +22,11 @@ def save_plan_details(brand, plan_id, plan_details):
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
 
-setup_logging(args.debug)
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
     parser.add_argument('planId', type=str, help='The planId to fetch details for.')
     args = parser.parse_args()
+    setup_logging(args.debug)
 
     # Search for the brand by looking through the JSON files in the plans directory
     # Search for the provider name by looking through the JSON files in the plans directory
