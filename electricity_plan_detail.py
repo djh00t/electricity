@@ -35,7 +35,6 @@ def should_refresh_plan(filename):
         days_difference = time_difference.days
         logging.info(f"Plan file '{filename}' exists. Current UTC time: {current_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')}, Last downloaded: {last_downloaded_str}, Days difference: {days_difference}")
         if time_difference > timedelta(days=REFRESH_DAYS):
-        if time_difference > timedelta(days=REFRESH_DAYS):
             return True
     return False
 
