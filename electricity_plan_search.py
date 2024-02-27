@@ -6,6 +6,7 @@ import csv
 import subprocess
 from tabulate import tabulate
 from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
+from electricity_plan_detail import should_refresh_plans
 from concurrent.futures import ProcessPoolExecutor
 import sys
 import logging
