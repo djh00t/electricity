@@ -6,7 +6,8 @@ from datetime import datetime
 def load_provider_urls(filename):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile)
-        next(reader, None)  # Skip the header row
+        next(csvfile)  # Skip the first row (title row)
+        next(csvfile)  # Skip the second row (header row)
         return {row['Brand Name']: row['Retailer Base URI'] for row in reader if row['Brand Name']}
 
 def fetch_plans(base_url, headers):
