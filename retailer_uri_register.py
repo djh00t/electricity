@@ -10,38 +10,24 @@ import os
 import fitz  # PyMuPDF
 
 def disassemble_pdf(pdf_filename):
+    retailer_data = []
     with fitz.open(pdf_filename) as pdf:
-        for page_number in range(len(pdf)):
-            page = pdf[page_number]
-            text = page.get_text("text")
-            lines = text.split('\n')
-            # Find the index of the line after the one containing "Retailer Base URI"
-            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), None)
-            if start_index is not None:
-                start_index += 1
-            # Find the index of the line containing "Change log"
-            end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
-            if start_index is not None:
-                # If the "Change log" line is found, only take lines up to that line
-                content_after_title = lines[start_index:end_index]
-                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                # Convert the non_empty_lines into a list of dictionaries
-                retailer_data = []
-                for i in range(0, len(non_empty_lines), 2):
-                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
-                return retailer_data
-            else:
-                # If the "Change log" line is found, only take lines up to that line
-                if end_index is not None:
-                    lines = lines[:end_index]
-                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                # Convert the non_empty_lines into a list of dictionaries
-                retailer_data = []
-                for i in range(0, len(non_empty_lines), 2):
-                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
-                return retailer_data
+        text = ""
+        for page in pdf:
+            text += page.get_text("text")
+        lines = text.split('\n')
+        start_processing = False
+        for line in lines:
+            if "Retailer Base URI" in line:
+                start_processing = True
+                continue
+            if start_processing:
+                if "Change log" in line:
+                    break
+                if line.strip() and not line.strip().isdigit() and "www.aer.gov.au/cdr" not in line:
+                    brand, uri = line.strip().split(maxsplit=1)
+                    retailer_data.append({'brand': brand, 'uri': uri})
+    return retailer_data
 
 def download_first_pdf(url):
     # Send a GET request to the URL
