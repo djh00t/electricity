@@ -30,6 +30,9 @@ def disassemble_pdf(pdf_filename):
                 retailer_data = []
                 for i in range(0, len(non_empty_lines), 2):
                     retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                # Remove the first list entry if it matches the specified pattern
+                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
+                    retailer_data.pop(0)
                 return retailer_data
             else:
                 # If the "Change log" line is found, only take lines up to that line
@@ -41,6 +44,9 @@ def disassemble_pdf(pdf_filename):
                 retailer_data = []
                 for i in range(0, len(non_empty_lines), 2):
                     retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                # Remove the first list entry if it matches the specified pattern
+                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
+                    retailer_data.pop(0)
                 return retailer_data
 
 def download_first_pdf(url):
