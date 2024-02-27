@@ -21,10 +21,6 @@ def disassemble_pdf(pdf_filename):
                 start_index += 1
             # Find the index of the line containing "Change log"
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
-            # If the line is found, print the text from the next line onwards
-            if start_index != -1:
-                # If the "Change log" line is found, only take lines up to that line
-                content_after_title = lines[start_index + 1:end_index]
             if start_index is not None:
                 # If the "Change log" line is found, only take lines up to that line
                 content_after_title = lines[start_index:end_index]
