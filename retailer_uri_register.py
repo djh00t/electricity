@@ -46,32 +46,7 @@ def disassemble_pdf(pdf_filename):
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
                 return retailer_data
-            else:
-                # If the "Change log" line is found, only take lines up to that line
-                if end_index is not None:
-                    lines = lines[:end_index]
-                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                # Handle broken multiline URIs and clean up URIs
-                retailer_data = []
-                i = 0
-                while i < len(non_empty_lines):
-                    brand = non_empty_lines[i].strip()
-                    # Ensure we do not go out of bounds
-                if i + 1 < len(non_empty_lines):
-                    uri = non_empty_lines[i + 1].strip()
-                else:
-                    break
-                    # Check if URI is broken over multiple lines
-                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                        i += 1
-                        uri += non_empty_lines[i + 1].strip()
-                    retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
-                    i += 2
-                # Remove the first list entry if it matches the specified pattern
-                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
-                    retailer_data.pop(0)
-                return retailer_dataimport logging
+import logging
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
