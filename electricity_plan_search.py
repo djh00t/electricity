@@ -62,6 +62,7 @@ def main():
     filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
+    normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
 
 def main():
     ...
@@ -72,12 +73,13 @@ def main():
         for plan in plan_names:
             brand_name = plan['brandName']
             plan_id = plan['planId']
-            base_url = provider_urls.get(brand_name)
+            normalized_brand_name = brand_name.lower().replace(' ', '_')
+            base_url = normalized_provider_urls.get(normalized_brand_name)
             if base_url:
                 plan_details = fetch_plan_details(base_url, headers, plan_id)
                 save_plan_details(brand_name, plan_id, plan_details)
             else:
-                logging.error(f"Base URL for provider '{brand_name}' not found.")
+                logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
     # Output results after fetching and saving all plan details
     if args.providers:
         if args.json:
