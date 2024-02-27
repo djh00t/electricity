@@ -1,6 +1,6 @@
 import argparse, sys
 import os
-from datetime import datetime
+from datetime import datetime, timezone
 from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
