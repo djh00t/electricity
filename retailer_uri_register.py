@@ -8,6 +8,7 @@ def extract_table_from_pdf(pdf_filename):
     # Open the PDF file
     pdf_document = fitz.open(pdf_filename)
     table_content = []
+    headers_encountered = False
     change_log_encountered = False
     # Iterate over each page in the PDF
     for page_number in range(len(pdf_document)):
@@ -18,9 +19,15 @@ def extract_table_from_pdf(pdf_filename):
             if "lines" in block:
                 for line in block["lines"]:
                     row_data = [span["text"].strip() for span in line["spans"]]
-                    if ['Change log'] in row_data:
+                    if not headers_encountered and ['Brand Name'] in row_data and ['Retailer Base URI'] in row_data:
+                        headers_encountered = True
+                        table_content.append(row_data)
+                        continue
+                    elif ['Change log'] in row_data:
                         change_log_encountered = True
                         break
+                    if headers_encountered:
+                        table_content.append(row_data)
                     table_content.append(row_data)
             if change_log_encountered:
                 break
