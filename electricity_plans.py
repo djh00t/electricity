@@ -77,11 +77,6 @@ def main():
             save_plans_to_file(brand, plans)
             total_providers += 1
             total_plans += len(plans)
-    logging.info(f"Finished processing. Total providers: {total_providers}, Total plans: {total_plans}")
-        save_plans_to_file(brand, plans)
-        total_providers += 1
-        total_plans += len(plans)
-    logging.info(f"Finished processing. Total providers: {total_providers}, Total plans: {total_plans}")
 
 if __name__ == '__main__':
     main()
