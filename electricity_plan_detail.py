@@ -8,10 +8,10 @@ def fetch_plan_details(base_url, headers, plan_id):
     return response.json()
 
 def save_plan_details(brand, plan_id, plan_details):
-    directory = f"plans/{brand}"
-    if not os.path.exists(directory):
-        os.makedirs(directory)
-    filename = f"{directory}/{plan_id}.json"
+    brand_directory = f"plans/{brand}"
+    if not os.path.exists(brand_directory):
+        os.makedirs(brand_directory)
+    filename = f"{brand_directory}/{plan_id}.json"
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
 
