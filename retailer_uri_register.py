@@ -25,8 +25,10 @@ def disassemble_pdf(pdf_filename):
                 if "Change log" in line:
                     break
                 if line.strip() and not line.strip().isdigit() and "www.aer.gov.au/cdr" not in line:
-                    brand, uri = line.strip().split(maxsplit=1)
-                    retailer_data.append({'brand': brand, 'uri': uri})
+                    parts = line.strip().split(maxsplit=1)
+                    if len(parts) == 2:
+                        brand, uri = parts
+                        retailer_data.append({'brand': brand, 'uri': uri})
     return retailer_data
 
 def download_first_pdf(url):
