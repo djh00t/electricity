@@ -39,7 +39,23 @@ def disassemble_pdf(pdf_filename):
                 retailer_data = []
                 for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
-                    uri = non_empty_lines[i + 1].strip() if i + 1 < len(non_empty_lines) else ''
+                    if i + 1 < len(non_empty_lines):
+                        uri = non_empty_lines[i + 1].strip()
+                        # Concatenate broken lines for URI
+                        while not uri.endswith('/') and i + 2 < len(non_empty_lines):
+                            next_line = non_empty_lines[i + 2].strip()
+                            # Check if the next line is likely part of the URI
+                            if not next_line.lower().startswith('http'):
+                                uri += next_line
+                                i += 1
+                            else:
+                                break
+                        if uri:  # Ensure URI is not empty
+                            logger.info(f"Appending retailer data entry for brand: {brand}")
+                            retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                        i += 2
+                    else:
+                        break
                     # Concatenate broken lines for URI
                     while not uri.endswith('/') and i + 2 < len(non_empty_lines):
                         uri += non_empty_lines[i + 2].strip()
