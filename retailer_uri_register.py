@@ -73,12 +73,10 @@ def download_first_pdf(url):
     table_content = disassemble_pdf(pdf_filename)
     print(table_content)
 
-    # Turn table_content into comma separated list by taking every second line
-    # and making it the second column of the previous line and saving it as
-    # retailer_uri_list
-    retailer_uri_list = []
-    for i in range(0, len(table_content), 2):
-        retailer_uri_list.append(f"{table_content[i]},{table_content[i + 1]}")
+    # Combine every two lines into a comma-separated string and add to retailer_uri_list
+    retailer_uri_list = [f"{table_content[i]},{table_content[i + 1]}" for i in range(0, len(table_content), 2)]
+
+    return retailer_uri_list
     
 
 # URL of the AER retailer base URIs page
