@@ -9,7 +9,7 @@ from datetime import datetime, timezone, timedelta
 from concurrent.futures import ProcessPoolExecutor
 
 REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
-DETAIL_THREADS = 4  # Number of parallel processes for checking plan details
+DETAIL_THREADS = 10  # Number of parallel processes for checking plan details
 
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
