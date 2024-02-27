@@ -23,12 +23,18 @@ from utilities import load_provider_urls
 
 def should_refresh_plan(filename):
     if not os.path.exists(filename):
+        logging.info(f"Plan file '{filename}' does not exist. It will be downloaded.")
         return True
     with open(filename, 'r') as file:
         plan_data = json.load(file)
     last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
     if last_downloaded_str:
         last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
+        current_time = datetime.now(timezone.utc)
+        time_difference = current_time - last_downloaded
+        days_difference = time_difference.days
+        logging.info(f"Plan file '{filename}' exists. Current UTC time: {current_time.strftime('%Y-%m-%dT%H:%M:%S.000Z')}, Last downloaded: {last_downloaded_str}, Days difference: {days_difference}")
+        if time_difference > timedelta(days=REFRESH_DAYS):
         if datetime.now(timezone.utc) - last_downloaded > timedelta(days=REFRESH_DAYS):
             return True
     return False
