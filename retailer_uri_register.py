@@ -8,6 +8,10 @@ import os
 # Reinstall the fitz library with the correct architecture
 # pip install --no-cache-dir pymupdf
 import fitz  # PyMuPDF
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
 def disassemble_pdf(pdf_filename):
     logger.info(f"Opening PDF file: {pdf_filename}")
@@ -66,10 +70,7 @@ def disassemble_pdf(pdf_filename):
                 logger.info(f"Completed processing page: {page_number + 1}")
                 return retailer_data
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
-import logging
 
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
 
 def download_first_pdf(url):
     # Send a GET request to the URL
