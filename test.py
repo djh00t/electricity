@@ -1,6 +1,8 @@
 from threading import Thread
 from queue import Queue
 import time
+import random
+from threading import Thread
 
 class TaskQueue(Queue):
 
@@ -27,6 +29,11 @@ class TaskQueue(Queue):
             self.task_done()
 
 
+def add_tasks_at_random_intervals(queue, task, min_ms=50, max_ms=1000):
+    while True:
+        time.sleep(random.randint(min_ms, max_ms) / 1000.0)
+        queue.add_task(task)
+
 def tests():
     def blokkah(*args, **kwargs):
         time.sleep(1)
@@ -34,8 +41,10 @@ def tests():
 
     q = TaskQueue(num_workers=5)
 
-    for item in range(10):
-        q.add_task(blokkah)
+    # Start a thread to add tasks at random intervals
+    task_adder = Thread(target=add_tasks_at_random_intervals, args=(q, blokkah))
+    task_adder.daemon = True
+    task_adder.start()
 
     q.join()       # block until all tasks are done
     print("All done!")
