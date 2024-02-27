@@ -80,10 +80,13 @@ def main():
         sys.exit(1)
 
     headers = {'x-v': '1'}
-    plan_details = fetch_plan_details(base_url, headers, args.planId)
-    if should_refresh_plan(f"{ensure_brand_directory(brand)}/{args.planId}.json"):
+    plan_filename = f"{ensure_brand_directory(brand)}/{args.planId}.json"
+    if should_refresh_plan(plan_filename):
+        plan_details = fetch_plan_details(base_url, headers, args.planId)
         save_plan_details(brand, args.planId, plan_details)
-    save_plan_details(brand, args.planId, plan_details)
+        logging.info(f"Plan details for plan ID '{args.planId}' were downloaded and saved.")
+    else:
+        logging.info(f"Plan details for plan ID '{args.planId}' were skipped as they are up to date.")
 
 if __name__ == '__main__':
     main()
