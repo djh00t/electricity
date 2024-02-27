@@ -1,4 +1,4 @@
-import csv
+from utilities import load_provider_urls
 import os
 import requests
 import json
@@ -15,11 +15,6 @@ if args.debug:
 else:
     logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
-def load_provider_urls(filename):
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        reader.fieldnames = [name.strip() for name in reader.fieldnames]
-        return {row['Brand Name']: row['Retailer Base URI'].strip() for row in reader}
 
 def fetch_plans(base_url, headers):
     page = 1

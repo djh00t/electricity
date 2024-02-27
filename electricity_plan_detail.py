@@ -32,3 +32,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+from utilities import load_provider_urls
