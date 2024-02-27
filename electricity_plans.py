@@ -1,5 +1,6 @@
 from utilities import load_provider_urls
 import os
+import logging
 import requests
 import json
 from datetime import datetime
@@ -16,10 +17,17 @@ else:
     logging.basicConfig(level=logging.ERROR, format='%(asctime)s - %(levelname)s - %(message)s')
 
 
+if args.debug:
+    logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+else:
+    logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+
+logging.info("Starting electricity plans script")
+
 def fetch_plans(base_url, headers):
     page = 1
     plans = []
-    logging.info(f"Fetching plans for provider with base URL: {base_url}")
+    logging.debug(f"Fetching plans for provider with base URL: {base_url}")
     while True:
         params = {
             'effective': 'CURRENT',
@@ -29,7 +37,7 @@ def fetch_plans(base_url, headers):
             'fuelType': 'ALL'
         }
         response = requests.get(f"{base_url}cds-au/v1/energy/plans", headers=headers, params=params)
-        data = response.json()
+        data = response.json()  # Assuming response is always JSON and successful
         plans_data = data.get('data', {}).get('plans', [])
         if plans_data:
             plans.extend(plans_data)
@@ -37,7 +45,7 @@ def fetch_plans(base_url, headers):
         if page >= data['meta']['totalPages']:
             break
         page += 1
-    logging.info(f"Total plans fetched: {len(plans)}")
+    logging.debug(f"Total plans fetched: {len(plans)}")
     return plans
 
 def save_plans_to_file(provider_name, plans):

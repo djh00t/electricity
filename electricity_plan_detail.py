@@ -1,5 +1,6 @@
 import argparse, sys
 import os
+import logging
 import json
 import requests
 import re
@@ -7,6 +8,12 @@ import re
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
     return response.json()
+
+def setup_logging(debug):
+    if debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 from utilities import load_provider_urls
 
 def save_plan_details(brand, plan_id, plan_details):
@@ -17,6 +24,7 @@ def save_plan_details(brand, plan_id, plan_details):
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
 
+setup_logging(args.debug)
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
     parser.add_argument('planId', type=str, help='The planId to fetch details for.')
