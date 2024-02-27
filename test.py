@@ -22,7 +22,6 @@ class TaskQueue(Queue):
 
     def worker(self):
         while True:
-            tupl = self.get()
             item, args, kwargs = self.get()
             item(*args, **kwargs)  
             self.task_done()
