@@ -8,9 +8,24 @@ from tabulate import tabulate
 from electricity_plan_detail import fetch_plan_details, save_plan_details, check_refresh_plan, DETAIL_THREADS
 from electricity_plan_detail import should_refresh_plans
 from electricity_plan_detail import download_and_save_plan_details
+from electricity_plan_detail import check_plan_exists
 from concurrent.futures import ProcessPoolExecutor
 import sys
 import logging
+
+def count_plan_statuses(plan_filenames):
+    existing_count = 0
+    updated_count = 0
+    created_count = 0
+    for filename in plan_filenames:
+        exists, updated = check_plan_exists(filename)
+        if exists:
+            existing_count += 1
+            if updated:
+                updated_count += 1
+        else:
+            created_count += 1
+    return existing_count, updated_count, created_count
 
 def filter_plans_by_postcode(plans_data, postcode):
     return [plan for plan in plans_data if postcode in plan.get('geography', {}).get('includedPostcodes', [])]
@@ -89,6 +104,13 @@ def main():
                              for plan in plan_names if refresh_plan_info.get(f"brands/{plan['brandName'].lower().replace(' ', '_')}/{plan['planId']}.json")]
         with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
             executor.map(download_and_save_plan_details, plans_to_download)
+
+        # Count the number of plans based on their status
+        existing_count, updated_count, created_count = count_plan_statuses(plan_filenames)
+        print(f"Total plans: {len(plan_filenames)}")
+        print(f"Existing plans: {existing_count}")
+        print(f"Updated plans: {updated_count}")
+        print(f"Newly created plans: {created_count}")
     else:
         logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
 
