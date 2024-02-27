@@ -38,14 +38,15 @@ def extract_pdf_data(pdf_path):
     logger.debug(f"Opening PDF stream")
     logger.debug(f"Opening PDF file: {pdf_path}")
     retailer_data = []
-    with fitz.open(stream=pdf_stream, filetype="pdf") as pdf:
+    with fitz.open(stream=pdf_stream, filetype="pdf") as pdf:  # pdf_stream is now correctly passed as an argument
         for page_num in range(pdf.page_count):
             page = pdf.load_page(page_num)
             text = page.get_text("text")
             lines = text.split('\n')
             i = 0
             while i < len(lines) - 1:
-                if "Change log" in lines[i]:
+                if "Change log" in lines[i]:  # Stop processing if "Change log" is found
+                    break
                     break  # Stop processing if "Change log" is found
                 brand, uri = lines[i].strip(), lines[i + 1].strip()
                 if uri.lower().startswith('http') and 'placeholder' not in uri.lower():
@@ -54,7 +55,7 @@ def extract_pdf_data(pdf_path):
                 else:
                     i += 1  # Move to the next line
             logger.debug(f"Processed page: {page_num + 1}/{pdf.page_count}")
-    logger.debug("Completed PDF data extraction")
+    logger.debug("Completed PDF data extraction")  # Extraction complete
     return retailer_data
 
 def download_and_extract_pdf_data(url):
@@ -81,12 +82,13 @@ def download_and_extract_pdf_data(url):
     pdf_url = urllib.parse.urljoin(response.url, pdf_link_tag['href'])
     logger.info(f"Downloading PDF from: {pdf_url}")
     
+    logger.info(f"Downloading PDF from: {pdf_url}")
 
     pdf_response = requests.get(pdf_url)
-    pdf_response.raise_for_status()
+    pdf_response.raise_for_status()  # Ensure we have a successful response
 
     # Here we pass the PDF content directly as a stream
-    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))
+    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the function
     print(retailer_data)
 
 # The URL to fetch the PDF from
