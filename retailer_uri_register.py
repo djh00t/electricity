@@ -25,11 +25,13 @@ def disassemble_pdf(pdf_filename):
                         if len(spans) == 2:  # We expect each line to have exactly 2 spans: brand and URI
                             brand = spans[0]["text"].strip()
                             uri = spans[1]["text"].strip()
-                            if brand != "Retailer Base URI" and "Change log" not in brand and uri:
+                            if "Retailer Base URI" in brand:
+                                start_processing = True  # Start processing after this line
+                                continue
+                            if start_processing and brand and uri:
+                                if "Change log" in brand:
+                                    return retailer_data  # Stop processing at "Change log"
                                 retailer_data.append({'brand': brand, 'uri': uri})
-                        elif "Change log" in spans[0]["text"]:
-                            # Stop processing once we reach the "Change log" section
-                            return retailer_data
     return retailer_data
 
 def download_first_pdf(url):
