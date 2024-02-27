@@ -24,7 +24,7 @@ def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         for page_number in range(len(pdf)):
             page = pdf[page_number]
-            print(f"--- Page {page_number + 1} ---")
+            #print(f"--- Page {page_number + 1} ---")
             text = page.get_text("text")
             lines = text.split('\n')
             # Find the index of the line containing "Energy Retailer Base URIs"
