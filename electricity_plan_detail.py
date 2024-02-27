@@ -8,6 +8,21 @@ import requests
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ProcessPoolExecutor
 
+def check_plan_exists(filename):
+    exists = os.path.isfile(filename)
+    updated = False
+    if exists:
+        with open(filename, 'r') as file:
+            plan_data = json.load(file)
+        last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
+        if last_downloaded_str:
+            last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
+            current_time = datetime.now(timezone.utc)
+            time_difference = current_time - last_downloaded
+            if time_difference > timedelta(days=REFRESH_DAYS):
+                updated = True
+    return exists, updated
+
 def download_and_save_plan_details(plan_info):
     brand_name, plan_id, base_url, headers = plan_info
     plan_details = fetch_plan_details(base_url, headers, plan_id)
