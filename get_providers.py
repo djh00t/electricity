@@ -1,4 +1,3 @@
-
 """
 This script is used to download and extract retailer information from a specified PDF file.
 The PDF is expected to contain retailer names and their corresponding base URIs.
@@ -30,13 +29,15 @@ def extract_pdf_data(pdf_path):
 
     Args:
         pdf_path (str): The file path to the PDF from which to extract data.
+        pdf_stream (stream): A byte stream of the PDF from which to extract data.
 
     Returns:
         list of dict: A list of dictionaries containing retailer 'brand' and 'uri'.
     """
+    logger.debug(f"Opening PDF stream")
     logger.debug(f"Opening PDF file: {pdf_path}")
     retailer_data = []
-    with fitz.open(pdf_path) as pdf:
+    with fitz.open("pdf", pdf_stream) as pdf:
         for page_num in range(pdf.page_count):
             page = pdf.load_page(page_num)
             text = page.get_text("text")
@@ -57,7 +58,7 @@ def extract_pdf_data(pdf_path):
 
 def download_and_extract_pdf_data(url):
     """
-    Downloads the first PDF found at the given URL and extracts data from it.
+    Downloads the first PDF found at the given URL and extracts data from it to memory.
 
     Args:
         url (str): The URL to fetch the PDF from.
@@ -77,15 +78,13 @@ def download_and_extract_pdf_data(url):
         return
 
     pdf_url = urllib.parse.urljoin(response.url, pdf_link_tag['href'])
-    pdf_filename = 'retailer_uri_register.pdf'
     logger.info(f"Downloading PDF from: {pdf_url}")
     
+
     pdf_response = requests.get(pdf_url)
     pdf_response.raise_for_status()
-    with open(pdf_filename, 'wb') as file:
-        file.write(pdf_response.content)
 
-    retailer_data = extract_pdf_data(pdf_filename)
+    retailer_data = extract_pdf_data(pdf_response.content)
     print(retailer_data)
 
 # The URL to fetch the PDF from
