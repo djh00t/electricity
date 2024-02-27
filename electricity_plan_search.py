@@ -1,6 +1,8 @@
 import argparse
 import os
 import json
+import csv
+from tabulate import tabulate
 
 def load_plans_from_directory(directory):
     plans_data = []
@@ -19,12 +21,28 @@ def get_providers_from_plans(filtered_plans):
 def get_plan_names_from_plans(filtered_plans):
     return [plan.get('displayName') for plan in filtered_plans]
 
+def output_results_as_json(results):
+    print(json.dumps(results, indent=4))
+
+def output_results_as_csv(results, header):
+    writer = csv.writer(sys.stdout)
+    writer.writerow(header)
+    for row in results:
+        writer.writerow([row])
+
+def output_results_as_text(results, header):
+    print(tabulate([[row] for row in results], headers=header, tablefmt='grid'))
+
 def main():
     parser = argparse.ArgumentParser(description='Search for electricity plans by postcode.')
     parser.add_argument('--postcode', required=True, type=str, help='Postcode to filter plans by.')
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument('--providers', action='store_true', help='Return a list of provider brand names.')
     group.add_argument('--plans', action='store_true', help='Return a list of plan display names.')
+    output_group = parser.add_mutually_exclusive_group()
+    output_group.add_argument('--json', action='store_true', help='Output results in JSON format.')
+    output_group.add_argument('--csv', action='store_true', help='Output results in CSV format.')
+    output_group.add_argument('--text', action='store_true', help='Output results in table format.')
     args = parser.parse_args()
 
     plans_data = load_plans_from_directory('plans')
@@ -32,10 +50,20 @@ def main():
 
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
-        print(providers)
+        if args.json:
+            output_results_as_json(providers)
+        elif args.csv:
+            output_results_as_csv(providers, ['Provider'])
+        else:  # Default to text output
+            output_results_as_text(providers, ['Provider'])
     elif args.plans:
         plan_names = get_plan_names_from_plans(filtered_plans)
-        print(plan_names)
+        if args.json:
+            output_results_as_json(plan_names)
+        elif args.csv:
+            output_results_as_csv(plan_names, ['Plan Name'])
+        else:  # Default to text output
+            output_results_as_text(plan_names, ['Plan Name'])
 
 if __name__ == '__main__':
     main()
