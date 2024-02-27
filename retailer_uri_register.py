@@ -16,8 +16,8 @@ def disassemble_pdf(pdf_filename):
             # print(f"--- Page {page_number + 1} ---")
             text = page.get_text("text")
             lines = text.split('\n')
-            # Find the index of the line containing "Energy Retailer Base URIs"
-            start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
+            # Find the index of the line containing "Retailer Base URI"
+            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), -1)
             # Find the index of the line containing "Change log"
             end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
