@@ -114,8 +114,8 @@ def download_first_pdf(url):
     # and making it the second column of the previous line and saving it as
     # retailer_uri_list
     # Print the list of dictionaries
-    for entry in table_content:
-        print(entry)
+    #for entry in table_content:
+    #    print(entry)
     
 
 # URL of the AER retailer base URIs page
