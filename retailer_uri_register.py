@@ -38,7 +38,6 @@ def disassemble_pdf(pdf_filename):
                         logger.warning(f"Invalid data found on page {page_number + 1}: {line}")
                 else:
                     logger.warning(f"Unexpected line format on page {page_number + 1}: {line}")
-                    i += 2
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
