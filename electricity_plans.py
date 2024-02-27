@@ -6,7 +6,8 @@ from datetime import datetime
 def load_provider_urls(filename):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile)  # Now the header will be the second row
-        return {row['Brand Name']: row['Retailer Base URI'] for row in reader if row['Brand Name']}
+        reader = csv.DictReader(csvfile)
+        return {row['Brand Name']: row['Retailer Base URI'] for row in reader}
 
 def fetch_plans(base_url, headers):
     page = 1
@@ -39,9 +40,9 @@ def save_plans_to_file(provider_name, plans):
 def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
-    for provider_name, base_url in provider_urls.items():
-        plans = fetch_plans(base_url, headers)
-        save_plans_to_file(provider_name, plans)
+    for brand, brand_url in provider_urls.items():
+        plans = fetch_plans(brand_url, headers)
+        save_plans_to_file(brand, plans)
 
 if __name__ == '__main__':
     main()
