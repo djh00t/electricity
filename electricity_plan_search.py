@@ -78,6 +78,9 @@ def main():
             if base_url:
                 plan_details = fetch_plan_details(base_url, headers, plan_id)
                 save_plan_details(brand_name, plan_id, plan_details)
+                    logging.info(f"Plan details for plan ID '{plan_id}' were fetched and saved.")
+                else:
+                    logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
             else:
                 logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
     # Output results after fetching and saving all plan details

@@ -17,6 +17,7 @@ def setup_logging(debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
+        logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 from utilities import load_provider_urls
 
@@ -28,6 +29,7 @@ def save_plan_details(brand_name, plan_id, plan_details):
         plan_details['meta'] = {'lastDownloaded': last_downloaded}
         with open(filename, 'w') as file:
             json.dump(plan_details, file, indent=4)
+        logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
 
 def should_refresh_plan(filename):
     if not os.path.exists(filename):
