@@ -41,12 +41,11 @@ def should_refresh_plan(filename):
 def save_plan_details(brand_name, plan_id, plan_details):
     brand_directory = ensure_brand_directory(brand_name)
     filename = f"{brand_directory}/{plan_id}.json"
-    if should_refresh_plan(filename):
-        last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
-        plan_details['meta'] = {'lastDownloaded': last_downloaded}
-        with open(filename, 'w') as file:
-            json.dump(plan_details, file, indent=4)
-        logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
+    last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    plan_details['meta'] = {'lastDownloaded': last_downloaded}
+    with open(filename, 'w') as file:
+        json.dump(plan_details, file, indent=4)
+    logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
 
 
 
