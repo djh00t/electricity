@@ -27,6 +27,8 @@ def disassemble_pdf(pdf_filename):
             # Adjusted text extraction logic for the observed PDF format
             i = 0
             while i < len(lines) - 1:
+                if "Change log" in lines[i]:
+                    break  # Stop processing if "Change log" is found
                 brand = lines[i].strip()
                 uri = lines[i + 1].strip()
                 if uri.lower().startswith('http') and 'placeholder' not in uri.lower():
