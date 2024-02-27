@@ -26,7 +26,8 @@ def extract_table_from_pdf(pdf_filename):
                         change_log_encountered = True
                         break
                     if headers_encountered:
-                    if headers_encountered and not change_log_encountered:
+                        if not change_log_encountered:
+                            table_content.append(row_data)
                         table_content.append(row_data)
             if change_log_encountered:
                 break
