@@ -13,10 +13,6 @@ def extract_table_from_pdf(pdf_filename):
     # Iterate over each page in the PDF
     for page_number in range(len(pdf_document)):
         page = pdf_document[page_number]
-        text = page.get_text("text")
-        # Check if we've reached the "Change log" section and stop if we have
-        if "Change log" in text:
-            break
         # Search for the table headings to determine the start of the table
         for heading in headings:
             heading_area = page.search_for(heading)
@@ -33,6 +29,10 @@ def extract_table_from_pdf(pdf_filename):
                                 base_uri = spans[1]["text"].strip()
                                 table_content.append((brand_name, base_uri))
                 break  # Assuming there's only one table per page
+        # Check if we've reached the "Change log" section and stop if we have
+        text = page.get_text("text")
+        if "Change log" in text:
+            break
     pdf_document.close()
     return table_content
 
