@@ -1,9 +1,8 @@
-import argparse, os, sys
+import argparse, sys
 from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
 import requests
-import re
 
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
@@ -16,9 +15,9 @@ def setup_logging(debug):
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 from utilities import load_provider_urls
 
-def save_plan_details(brand, plan_id, plan_details):
-    brand_directory = ensure_brand_directory(brand)
-    filename = f"{brand_directory}/{plan_id}.json"
+def save_plan_details(brand_name, plan_id, plan_details):
+    brand_directory = ensure_brand_directory(brand_name)
+    filename = f"{brand_directory}/{datetime.now().strftime('%Y%m%d')}_{plan_id}.json"
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
 
@@ -31,7 +30,7 @@ def main():
 
     # Search for the brand by looking through the JSON files in the plans directory
     # Search for the provider name by looking through the JSON files in the plans directory
-    plans_directory = 'plans'
+    plans_directory = ensure_brand_directory('')
     brand = None
     for brand_directory in os.listdir(plans_directory):
         brand_path = os.path.join(plans_directory, brand_directory)
