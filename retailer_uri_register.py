@@ -84,10 +84,9 @@ def download_first_pdf(url):
     # Turn table_content into comma separated list by taking every second line
     # and making it the second column of the previous line and saving it as
     # retailer_uri_list
-    retailer_uri_list = [f"{entry['brand']},{entry['uri']}" for entry in table_content]
-    # Join the list into a single string with each entry on a new line
-    retailer_uri_csv = "\n".join(retailer_uri_list)
-    print(retailer_uri_csv)
+    # Print the list of dictionaries
+    for entry in table_content:
+        print(entry)
     
 
 # URL of the AER retailer base URIs page
