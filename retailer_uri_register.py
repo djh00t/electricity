@@ -26,14 +26,15 @@ def disassemble_pdf(pdf_filename):
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
+                return non_empty_lines
             else:
                 # If the "Change log" line is found, only take lines up to that line
                 if end_index is not None:
                     lines = lines[:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
+                return non_empty_lines
+    return []  # Return an empty list if no content is found
 
 def download_first_pdf(url):
     # Send a GET request to the URL
@@ -64,7 +65,7 @@ def download_first_pdf(url):
         print("No PDF link found on the page.")
 
     # Disassemble the PDF to show its internal "code"
-    table_content = disassemble_pdf(pdf_filename)
+    table_content = disassemble_pdf(pdf_filename) or []
 
     # Turn table_content into comma separated list by taking every second line
     # and making it the second column of the previous line and saving it as
