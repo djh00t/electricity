@@ -49,10 +49,11 @@ def fetch_plans(base_url, headers):
     return plans
 
 def save_plans_to_file(provider_name, plans):
-    directory = "plans"
+    base_directory = "brands"
+    directory = f"{base_directory}/{provider_name}"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = f"{directory}/{provider_name}_plans.json"
+    filename = f"{directory}/plans.json"
     if plans:  # If plans is not an empty list, write to file
         with open(filename, 'w') as file:
             file.write(json.dumps(plans, indent=4))
@@ -62,6 +63,9 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 def main():
+    base_directory = "brands"
+    if not os.path.exists(base_directory):
+        os.makedirs(base_directory)
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
     total_providers = 0
@@ -69,6 +73,11 @@ def main():
     for brand, brand_url in provider_urls.items():
         logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
+        if plans:
+            save_plans_to_file(brand, plans)
+            total_providers += 1
+            total_plans += len(plans)
+    logging.info(f"Finished processing. Total providers: {total_providers}, Total plans: {total_plans}")
         save_plans_to_file(brand, plans)
         total_providers += 1
         total_plans += len(plans)
