@@ -5,9 +5,11 @@ import os
 
 def download_first_pdf(url):
     # Send a GET request to the URL
-    response = requests.get(url, allow_redirects=True)
+    response = requests.get(url, allow_redirects=True, stream=True)
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()
+    # Follow redirects and show the final URL
+    print(f"Final URL after redirects: {response.url}")
 
     # Parse the HTML content
     soup = BeautifulSoup(response.text, 'html.parser')
