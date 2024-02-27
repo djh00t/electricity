@@ -63,24 +63,12 @@ def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
 
+def main():
+    ...
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
-        if args.json:
-            output_results_as_json(providers)
-        elif args.csv:
-            output_results_as_csv(providers, ['Provider'])
-        else:  # Default to text output
-            output_results_as_text(providers, ['Provider'])
     elif args.plans:
         plan_names = get_plan_names_from_plans(filtered_plans)
-        if args.json:
-            output_results_as_json(plan_names)
-        elif args.csv:
-            output_results_as_csv(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
-        elif args.text:
-            output_results_as_text(plan_names)
-        else:  # Default to text output
-            output_results_as_text(plan_names)
         for plan in plan_names:
             brand_name = plan['brandName']
             plan_id = plan['planId']
@@ -90,6 +78,23 @@ def main():
                 save_plan_details(brand_name, plan_id, plan_details)
             else:
                 logging.error(f"Base URL for provider '{brand_name}' not found.")
+    # Output results after fetching and saving all plan details
+    if args.providers:
+        if args.json:
+            output_results_as_json(providers)
+        elif args.csv:
+            output_results_as_csv(providers, ['Provider'])
+        else:  # Default to text output
+            output_results_as_text(providers)
+    elif args.plans:
+        if args.json:
+            output_results_as_json(plan_names)
+        elif args.csv:
+            output_results_as_csv(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
+        elif args.text:
+            output_results_as_text(plan_names)
+        else:  # Default to text output
+            output_results_as_text(plan_names)
 
 if __name__ == '__main__':
     main()
