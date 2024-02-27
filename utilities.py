@@ -9,7 +9,7 @@ def load_provider_urls(filename):
 
 def ensure_brand_directory(brand_name):
     base_directory = "brands"
-    directory = f"{base_directory}/{brand_name.replace(' ', '_')}"
+    directory = f"{base_directory}/{brand_name.replace(' ', '_').lower()}"
     if not os.path.exists(directory):
         os.makedirs(directory)
     return directory
