@@ -29,12 +29,18 @@ def disassemble_pdf(pdf_filename):
             lines = text.split('\n')
             # Find the index of the line containing "Energy Retailer Base URIs"
             start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
+            # Find the index of the line containing "Change log"
+            end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
             # If the line is found, print the text from the next line onwards
             if start_index != -1:
-                content_after_title = lines[start_index + 1:]
+                # If the "Change log" line is found, only take lines up to that line
+                content_after_title = lines[start_index + 1:end_index]
                 non_empty_lines = [line for line in content_after_title if line.strip()]
                 print('\n'.join(non_empty_lines))
             else:
+                # If the "Change log" line is found, only take lines up to that line
+                if end_index is not None:
+                    lines = lines[:end_index]
                 non_empty_lines = [line for line in lines if line.strip()]
                 print('\n'.join(non_empty_lines))
 
