@@ -31,7 +31,7 @@ def download_first_pdf(url):
     # Raise an exception if the request was unsuccessful
     response.raise_for_status()
     # Follow redirects and show the final URL
-    print(f"Final URL after redirects: {response.url}")
+    # print(f"Final URL after redirects: {response.url}")
 
     # Parse the HTML content
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -49,7 +49,7 @@ def download_first_pdf(url):
         # Save the PDF to a file
         with open(pdf_filename, 'wb') as f:
             f.write(pdf_response.content)
-        print(f"PDF downloaded: {pdf_filename}")
+        # print(f"PDF downloaded: {pdf_filename}")
         # Extract the table from the downloaded PDF
         table_content = extract_table_from_pdf(pdf_filename)
         # Output the extracted table content
