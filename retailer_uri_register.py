@@ -17,6 +17,7 @@ def disassemble_pdf(pdf_filename):
     logger.info(f"Opening PDF file: {pdf_filename}")
     with fitz.open(pdf_filename) as pdf:
         logger.info(f"PDF file opened successfully: {pdf_filename}")
+        retailer_data = []
         for page_number in range(len(pdf)):
             logger.info(f"Processing page: {page_number + 1}/{len(pdf)}")
             page = pdf[page_number]
@@ -36,7 +37,6 @@ def disassemble_pdf(pdf_filename):
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
                 logger.info(f"Filtered non-empty lines on page: {page_number + 1}")
                 # Handle broken multiline URIs and clean up URIs
-                retailer_data = []
                 for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
                     # Skip placeholder entries
@@ -68,7 +68,7 @@ def disassemble_pdf(pdf_filename):
                     i += 2
                 # Remove the first list entry if it matches the specified pattern
                 # Skip placeholder entries
-                retailer_data = [entry for entry in retailer_data if entry['brand'] != 'Brand Name' and 'Retailer Base URI' not in entry['uri']]
+                retailer_data.extend([entry for entry in retailer_data if entry['brand'] != 'Brand Name' and 'Retailer Base URI' not in entry['uri']])
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
