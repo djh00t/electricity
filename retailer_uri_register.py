@@ -26,15 +26,22 @@ def disassemble_pdf(pdf_filename):
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
+                # Convert the non_empty_lines into a list of dictionaries
+                retailer_data = []
+                for i in range(0, len(non_empty_lines), 2):
+                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                return retailer_data
             else:
                 # If the "Change log" line is found, only take lines up to that line
                 if end_index is not None:
                     lines = lines[:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
-    return non_empty_lines
+                # Convert the non_empty_lines into a list of dictionaries
+                retailer_data = []
+                for i in range(0, len(non_empty_lines), 2):
+                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                return retailer_data
 
 def download_first_pdf(url):
     # Send a GET request to the URL
