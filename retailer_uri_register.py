@@ -50,26 +50,8 @@ def disassemble_pdf(pdf_filename):
                 # Remove the first list entry if it matches the specified pattern
                 if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
                     retailer_data.pop(0)
-                logger.info(f"Completed processing page: {page_number + 1}")
-                return retailer_data
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
-                if i + 1 < len(non_empty_lines):
-                    uri = non_empty_lines[i + 1].strip()
-                else:
-                    break
-                # Check if URI is broken over multiple lines
-                while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                    i += 1
-                    uri += non_empty_lines[i + 1].strip()
-                logger.info(f"Appending retailer data entry for brand: {brand}")
-                retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
-                i += 2
-                # Remove the first list entry if it matches the specified pattern
-                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
-                    retailer_data.pop(0)
-                logger.info(f"Completed processing page: {page_number + 1}")
-                return retailer_data
-    logger.info(f"Completed disassembling PDF: {pdf_filename}")
+    return retailer_data
 
 
 def download_first_pdf(url):
