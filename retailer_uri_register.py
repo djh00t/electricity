@@ -10,29 +10,38 @@ import os
 import fitz  # PyMuPDF
 
 def disassemble_pdf(pdf_filename):
-    retailer_data = []
     with fitz.open(pdf_filename) as pdf:
-        pages_text = []
-        for page in pdf:
-            pages_text.append(page.get_text("dict"))  # Append the dict output to the pages_text list
-        # Process each page's text
-        for page_text in pages_text:
-            blocks = page_text["blocks"]
-            for b in blocks:
-                if "lines" in b:  # Ensure we are looking at text lines
-                    for line in b["lines"]:
-                        spans = line["spans"]
-                        if len(spans) == 2:  # We expect each line to have exactly 2 spans: brand and URI
-                            brand = spans[0]["text"].strip()
-                            uri = spans[1]["text"].strip()
-                            if "Retailer Base URI" in brand:
-                                start_processing = True  # Start processing after this line
-                                continue
-                            if start_processing and brand and uri:
-                                if "Change log" in brand:
-                                    return retailer_data  # Stop processing at "Change log"
-                                retailer_data.append({'brand': brand, 'uri': uri})
-    return retailer_data
+        for page_number in range(len(pdf)):
+            page = pdf[page_number]
+
+            text = page.get_text("text")
+            lines = text.split('\n')
+            # Find the index of the line containing "Retailer Base URI"
+            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), -1)
+            # Find the index of the line containing "Change log"
+            end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
+            # If the line is found, print the text from the next line onwards
+            if start_index != -1:
+                # If the "Change log" line is found, only take lines up to that line
+                content_after_title = lines[start_index + 1:end_index]
+                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
+                non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
+                # Convert the non_empty_lines into a list of dictionaries
+                retailer_data = []
+                for i in range(0, len(non_empty_lines), 2):
+                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                return retailer_data
+            else:
+                # If the "Change log" line is found, only take lines up to that line
+                if end_index is not None:
+                    lines = lines[:end_index]
+                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
+                non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
+                # Convert the non_empty_lines into a list of dictionaries
+                retailer_data = []
+                for i in range(0, len(non_empty_lines), 2):
+                    retailer_data.append({'brand': non_empty_lines[i], 'uri': non_empty_lines[i + 1]})
+                return retailer_data
 
 def download_first_pdf(url):
     # Send a GET request to the URL
@@ -61,8 +70,6 @@ def download_first_pdf(url):
         # print(f"PDF downloaded: {pdf_filename}")
     else:
         print("No PDF link found on the page.")
-def download_first_pdf(url):
-    # ... (previous code remains unchanged)
 
     # Disassemble the PDF to show its internal "code"
     table_content = disassemble_pdf(pdf_filename)
@@ -71,11 +78,9 @@ def download_first_pdf(url):
     # Turn table_content into comma separated list by taking every second line
     # and making it the second column of the previous line and saving it as
     # retailer_uri_list
-    retailer_uri_list = [f"{entry['brand']},{entry['uri']}" for entry in table_content]
-
-    # Output the retailer_uri_list
-    for item in retailer_uri_list:
-        print(item)
+    retailer_uri_list = []
+    for i in range(0, len(table_content), 2):
+        retailer_uri_list.append(f"{table_content[i]},{table_content[i + 1]}")
     
 
 # URL of the AER retailer base URIs page
