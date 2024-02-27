@@ -37,7 +37,11 @@ def output_results_as_csv(results, header):
         writer.writerow(row)
 
 def output_results_as_text(results, header):
-    print(tabulate(results, headers=header, tablefmt='grid'))
+    if results and isinstance(results[0], dict):
+        headers = results[0].keys()
+    else:
+        headers = header
+    print(tabulate(results, headers=headers, tablefmt='grid'))
 
 def main():
     parser = argparse.ArgumentParser(description='Search for electricity plans by postcode.')
@@ -69,7 +73,7 @@ def main():
         elif args.csv:
             output_results_as_csv(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
         else:  # Default to text output
-            output_results_as_text(plan_names, ['Display Name', 'Plan ID', 'Fuel Type', 'Distributors', 'Customer Type'])
+            output_results_as_text(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
 
 if __name__ == '__main__':
     main()
