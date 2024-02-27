@@ -15,24 +15,21 @@ def disassemble_pdf(pdf_filename):
         pages_text = []
         for page in pdf:
             pages_text.append(page.get_text("dict"))  # Append the dict output to the pages_text list
-        for page_text in pages_text:  # Iterate over each page's text
+        # Process each page's text
+        for page_text in pages_text:
             blocks = page_text["blocks"]
-            start_processing = False
             for b in blocks:
-                if "lines" in b:
+                if "lines" in b:  # Ensure we are looking at text lines
                     for line in b["lines"]:
                         spans = line["spans"]
-                        if len(spans) >= 2:
+                        if len(spans) == 2:  # We expect each line to have exactly 2 spans: brand and URI
                             brand = spans[0]["text"].strip()
                             uri = spans[1]["text"].strip()
-                            if "Retailer Base URI" in brand:
-                                start_processing = True
-                                continue
-                            if start_processing:
-                                if "Change log" in brand:
-                                    return retailer_data
-                                if brand and uri and "www.aer.gov.au/cdr" not in uri:
-                                    retailer_data.append({'brand': brand, 'uri': uri})
+                            if brand != "Retailer Base URI" and "Change log" not in brand and uri:
+                                retailer_data.append({'brand': brand, 'uri': uri})
+                        elif "Change log" in spans[0]["text"]:
+                            # Stop processing once we reach the "Change log" section
+                            return retailer_data
     return retailer_data
 
 def download_first_pdf(url):
