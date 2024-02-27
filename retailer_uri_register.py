@@ -61,6 +61,8 @@ def download_first_pdf(url):
         # print(f"PDF downloaded: {pdf_filename}")
     else:
         print("No PDF link found on the page.")
+def download_first_pdf(url):
+    # ... (previous code remains unchanged)
 
     # Disassemble the PDF to show its internal "code"
     table_content = disassemble_pdf(pdf_filename)
@@ -69,9 +71,11 @@ def download_first_pdf(url):
     # Turn table_content into comma separated list by taking every second line
     # and making it the second column of the previous line and saving it as
     # retailer_uri_list
-    retailer_uri_list = []
-    for i in range(0, len(table_content), 2):
-        retailer_uri_list.append(f"{table_content[i]},{table_content[i + 1]}")
+    retailer_uri_list = [f"{entry['brand']},{entry['uri']}" for entry in table_content]
+
+    # Output the retailer_uri_list
+    for item in retailer_uri_list:
+        print(item)
     
 
 # URL of the AER retailer base URIs page
