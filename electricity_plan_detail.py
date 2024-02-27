@@ -25,7 +25,11 @@ def main():
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
 
     # Extract brand and base URL for the given planId
-    brand, base_url = next((brand, url) for brand, url in provider_urls.items() if args.planId in url)
+    try:
+        brand, base_url = next((brand, url) for brand, url in provider_urls.items() if args.planId in url)
+    except StopIteration:
+        sys.stderr.write(f"Error: The planId '{args.planId}' was not found in any provider URLs.\n")
+        sys.exit(1)
 
     headers = {'x-v': '1'}
     plan_details = fetch_plan_details(base_url, headers, args.planId)
