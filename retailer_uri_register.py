@@ -89,11 +89,18 @@ def download_first_pdf(url):
         # print(f"PDF downloaded: {pdf_filename}")
     else:
         logger.warning("No PDF link found on the page.")
+        return  # Return early if no PDF link is found
         print("No PDF link found on the page.")
 
     # Disassemble the PDF to show its internal "code"
     logger.info(f"Disassembling PDF: {pdf_filename}")
     table_content = disassemble_pdf(pdf_filename)
+    if table_content:
+        # Print the list of dictionaries
+        for entry in table_content:
+            print(entry)
+    else:
+        logger.warning("No data extracted from the PDF.")
     print(table_content)
 
     # Turn table_content into comma separated list by taking every second line
