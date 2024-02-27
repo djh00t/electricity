@@ -14,6 +14,7 @@ Usage:
 Example:
     python get_providers.py
 """
+import io
 import requests
 from bs4 import BeautifulSoup
 import urllib.parse
