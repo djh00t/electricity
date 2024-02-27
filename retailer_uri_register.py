@@ -72,9 +72,9 @@ def download_first_pdf(url):
             f.write(pdf_response.content)
         # print(f"PDF downloaded: {pdf_filename}")
         # Extract the table from the downloaded PDF
-        table_content = extract_table_from_pdf(pdf_filename)
+        #table_content = extract_table_from_pdf(pdf_filename)
         # Output the extracted table content
-        print(table_content)
+        #print(table_content)
     else:
         print("No PDF link found on the page.")
 
