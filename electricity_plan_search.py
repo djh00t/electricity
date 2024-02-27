@@ -9,15 +9,6 @@ from electricity_plan_detail import fetch_plan_details, save_plan_details
 import sys
 import logging
 
-def load_plans_from_all_brands():
-    plans_data = []
-    for brand_directory in os.listdir('brands'):
-        plans_file = ensure_brand_directory(brand_directory) + '/plans.json'
-        if os.path.isfile(plans_file):
-            with open(plans_file, 'r') as file:
-                plans_data.extend(json.load(file))
-    return plans_data
-
 def filter_plans_by_postcode(plans_data, postcode):
     return [plan for plan in plans_data if postcode in plan.get('geography', {}).get('includedPostcodes', [])]
 
@@ -60,11 +51,21 @@ def main():
     args = parser.parse_args()
     logging.basicConfig(level=logging.DEBUG if args.debug else logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
-    plans_data = load_plans_from_all_brands()
+    def load_plans_from_all_brands():
+        plans_data = []
+        for brand_directory in os.listdir('brands'):
+            plans_file = ensure_brand_directory(brand_directory) + '/plans.json'
+            if os.path.isfile(plans_file):
+                with open(plans_file, 'r') as file:
+                    plans_data.extend(json.load(file))
+        return plans_data
+
+    plans_data = load_plans_from_all_brands()    
     filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
     provider_urls = load_provider_urls('electricity_plan_urls.csv')
     headers = {'x-v': '1'}
     normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
+
 
 def main():
     ...
