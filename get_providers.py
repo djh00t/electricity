@@ -38,7 +38,7 @@ def extract_pdf_data(pdf_path):
     logger.debug(f"Opening PDF stream")
     logger.debug(f"Opening PDF file: {pdf_path}")
     retailer_data = []
-    with fitz.open(stream=pdf_stream, filetype="pdf") as pdf:  # pdf_stream is now correctly passed as an argument
+    with fitz.open(stream=pdf_path, filetype="pdf") as pdf:  # pdf_path is now correctly passed as an argument
         for page_num in range(pdf.page_count):
             page = pdf.load_page(page_num)
             text = page.get_text("text")
@@ -88,7 +88,7 @@ def download_and_extract_pdf_data(url):
     pdf_response.raise_for_status()  # Ensure we have a successful response
 
     # Here we pass the PDF content directly as a stream
-    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the function
+    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the extract_pdf_data function
     print(retailer_data)
 
 # The URL to fetch the PDF from
