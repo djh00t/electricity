@@ -20,7 +20,7 @@ def download_first_pdf(url):
         # Construct the full URL for the PDF link
         pdf_url = urllib.parse.urljoin(response.url, pdf_link['href'])
         # Get the PDF file name
-        pdf_filename = os.path.basename(pdf_url)
+        pdf_filename = 'retailer_uri_register.pdf'
         # Download the PDF
         pdf_response = requests.get(pdf_url)
         pdf_response.raise_for_status()
