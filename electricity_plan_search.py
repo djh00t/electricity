@@ -20,8 +20,9 @@ def get_providers_from_plans(filtered_plans):
 
 def get_plan_names_from_plans(filtered_plans):
     return [{
-        'displayName': plan.get('displayName'),
+        'brandName': plan.get('brandName'),
         'planId': plan.get('planId'),
+        'displayName': plan.get('displayName'),
         'fuelType': plan.get('fuelType'),
         'distributors': plan.get('geography', {}).get('distributors', []),
         'customerType': plan.get('customerType')
@@ -68,6 +69,8 @@ def main():
             output_results_as_json(plan_names)
         elif args.csv:
             output_results_as_csv(plan_names, ['displayName', 'planId', 'fuelType', 'distributors', 'customerType'])
+        elif args.text:
+            output_results_as_text(plan_names)
         else:  # Default to text output
             output_results_as_text(plan_names)
 
