@@ -37,10 +37,8 @@ def disassemble_pdf(pdf_filename):
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
                 logger.info(f"Filtered non-empty lines on page: {page_number + 1}")
                 # Handle broken multiline URIs and clean up URIs
-                for i in range(0, len(non_empty_lines), 2):
-                    brand = non_empty_lines[i].strip()
-                    # Skip placeholder entries
-                for i in range(0, len(non_empty_lines), 2):
+                i = 0
+                while i < len(non_empty_lines):
                     brand = non_empty_lines[i].strip()
                     uri = non_empty_lines[i + 1].strip() if i + 1 < len(non_empty_lines) else ''
                     # Concatenate broken lines for URI
@@ -54,6 +52,7 @@ def disassemble_pdf(pdf_filename):
                     # Ensure URI is not empty, does not contain placeholder text, and is a valid URI
                     if uri and 'Retailer Base URI' not in uri and uri.lower().startswith('http'):
                         retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                    i += 2
                     i += 2
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
