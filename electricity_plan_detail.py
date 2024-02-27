@@ -45,7 +45,7 @@ def save_plan_details(brand_name, plan_id, plan_details):
     plan_details['meta'] = {'lastDownloaded': last_downloaded}
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
-    logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
+    # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
 
 
 
