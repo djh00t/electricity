@@ -64,8 +64,6 @@ def save_plan_details(brand_name, plan_id, plan_details):
         json.dump(plan_details, file, indent=4)
     # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
 
-
-
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
     parser.add_argument('planId', type=str, help='The planId to fetch details for.')
@@ -111,10 +109,6 @@ def main():
     else:
         logging.info(f"Plan details for plan ID '{args.planId}' were skipped as they are up to date.")
     # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
-
-def main():
-    # The existing main function code remains unchanged.
-    # Ensure this is the end of the main function and there are no duplicates.
 
 if __name__ == '__main__':
     main()
