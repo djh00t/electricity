@@ -26,9 +26,12 @@ def main():
     # Search for the provider name by looking through the JSON files in the plans directory
     plans_directory = 'plans'
     brand = None
-    for filename in os.listdir(plans_directory):
-        if re.match(r'\d{8}_.*\.json$', filename):
-            with open(os.path.join(plans_directory, filename), 'r') as file:
+    for brand_directory in os.listdir(plans_directory):
+        brand_path = os.path.join(plans_directory, brand_directory)
+        if os.path.isdir(brand_path):
+            plans_file = os.path.join(brand_path, 'plans.json')
+            if os.path.exists(plans_file):
+                with open(plans_file, 'r') as file:
                 plans = json.load(file)
                 for plan in plans:
                     if plan.get('planId') == args.planId:

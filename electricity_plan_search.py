@@ -6,10 +6,13 @@ from tabulate import tabulate
 
 def load_plans_from_directory(directory):
     plans_data = []
-    for filename in os.listdir(directory):
-        if filename.endswith('.json'):
-            with open(os.path.join(directory, filename), 'r') as file:
-                plans_data.extend(json.load(file))
+    for brand_directory in os.listdir(directory):
+        brand_path = os.path.join(directory, brand_directory)
+        if os.path.isdir(brand_path):
+            plans_file = os.path.join(brand_path, 'plans.json')
+            if os.path.exists(plans_file):
+                with open(plans_file, 'r') as file:
+                    plans_data.extend(json.load(file))
     return plans_data
 
 def filter_plans_by_postcode(plans_data, postcode):

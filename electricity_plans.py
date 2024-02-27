@@ -44,8 +44,7 @@ def save_plans_to_file(provider_name, plans):
     directory = "plans"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    date_str = datetime.now().strftime('%Y%m%d')
-    filename = f"{directory}/{date_str}_{provider_name.replace(' ', '_')}.json"
+    filename = f"{brand_directory}/plans.json"
     if plans:  # If plans is not an empty list, write to file
         with open(filename, 'w') as file:
             file.write(json.dumps(plans, indent=4))
