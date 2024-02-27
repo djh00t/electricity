@@ -33,15 +33,22 @@ def disassemble_pdf(pdf_filename):
                 logger.info(f"Filtered non-empty lines on page: {page_number + 1}")
                 # Handle broken multiline URIs and clean up URIs
                 retailer_data = []
-                i = 0
-                while i < len(non_empty_lines):
+                for i in range(0, len(non_empty_lines), 2):
                     brand = non_empty_lines[i].strip()
-                    # Ensure we do not go out of bounds
-                    if i + 1 < len(non_empty_lines):
-                        uri = non_empty_lines[i + 1].strip()
-                    else:
-                        logger.info(f"Reached end of non-empty lines on page: {page_number + 1}")
-                        break
+                    uri = non_empty_lines[i + 1].strip() if i + 1 < len(non_empty_lines) else ''
+                    # Concatenate broken lines for URI
+                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
+                        uri += non_empty_lines[i + 2].strip()
+                        i += 1
+                    if uri:  # Ensure URI is not empty
+                        logger.info(f"Appending retailer data entry for brand: {brand}")
+                        retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
+                # Remove the first list entry if it matches the specified pattern
+                if retailer_data and retailer_data[0] == {'brand': 'Brand Name ', 'uri': 'Retailer Base URI '}:
+                    retailer_data.pop(0)
+                logger.info(f"Completed processing page: {page_number + 1}")
+                return retailer_data
+    logger.info(f"Completed disassembling PDF: {pdf_filename}")
                 if i + 1 < len(non_empty_lines):
                     uri = non_empty_lines[i + 1].strip()
                 else:
