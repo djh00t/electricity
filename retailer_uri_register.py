@@ -31,9 +31,12 @@ def disassemble_pdf(pdf_filename):
             start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
             # If the line is found, print the text from the next line onwards
             if start_index != -1:
-                print('\n'.join(lines[start_index + 1:]))
+                content_after_title = lines[start_index + 1:]
+                non_empty_lines = [line for line in content_after_title if line.strip()]
+                print('\n'.join(non_empty_lines))
             else:
-                print(text)
+                non_empty_lines = [line for line in lines if line.strip()]
+                print('\n'.join(non_empty_lines))
 
 def download_first_pdf(url):
     # Send a GET request to the URL
