@@ -2,6 +2,10 @@ import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 import os
+# Uninstall the incompatible fitz library
+# pip uninstall fitz
+# Reinstall the fitz library with the correct architecture
+# pip install --no-cache-dir pymupdf
 import fitz  # PyMuPDF
 
 def disassemble_pdf(pdf_filename):
