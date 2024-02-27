@@ -3,7 +3,9 @@ from utilities import ensure_brand_directory
 import logging
 import json
 import csv
+import subprocess
 from tabulate import tabulate
+from electricity_plan_detail import fetch_plan_details, save_plan_details
 
 def load_plans_from_all_brands():
     plans_data = []
@@ -58,6 +60,8 @@ def main():
 
     plans_data = load_plans_from_all_brands()
     filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
+    provider_urls = load_provider_urls('electricity_plan_urls.csv')
+    headers = {'x-v': '1'}
 
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
@@ -77,6 +81,15 @@ def main():
             output_results_as_text(plan_names)
         else:  # Default to text output
             output_results_as_text(plan_names)
+        for plan in plan_names:
+            brand_name = plan['brandName']
+            plan_id = plan['planId']
+            base_url = provider_urls.get(brand_name)
+            if base_url:
+                plan_details = fetch_plan_details(base_url, headers, plan_id)
+                save_plan_details(brand_name, plan_id, plan_details)
+            else:
+                logging.error(f"Base URL for provider '{brand_name}' not found.")
 
 if __name__ == '__main__':
     main()
