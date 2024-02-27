@@ -24,20 +24,17 @@ def disassemble_pdf(pdf_filename):
 
             text = page.get_text("text")
             lines = text.split('\n')
-            # Generic text extraction logic
-            for line in lines:
-                # Assuming each line contains a brand name followed by its URI
-                # and they are separated by a known delimiter, e.g., a comma.
-                parts = line.split(',')  # Replace comma with the actual delimiter
-                if len(parts) == 2:
-                    brand, uri = parts[0].strip(), parts[1].strip()
-                    # Validate the extracted data
-                    if uri.lower().startswith('http') and 'placeholder' not in uri.lower():
-                        retailer_data.append({'brand': brand, 'uri': uri})
-                    else:
-                        logger.warning(f"Invalid data found on page {page_number + 1}: {line}")
+            # Adjusted text extraction logic for the observed PDF format
+            i = 0
+            while i < len(lines) - 1:
+                brand = lines[i].strip()
+                uri = lines[i + 1].strip()
+                if uri.lower().startswith('http') and 'placeholder' not in uri.lower():
+                    retailer_data.append({'brand': brand, 'uri': uri})
+                    i += 2  # Skip to the next brand name
                 else:
-                    logger.warning(f"Unexpected line format on page {page_number + 1}: {line}")
+                    logger.warning(f"Unexpected line format on page {page_number + 1}: {brand} {uri}")
+                    i += 1  # Move to the next line to check if it's a brand name
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
 
