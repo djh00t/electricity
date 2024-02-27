@@ -4,22 +4,6 @@ import urllib.parse
 import os
 import fitz  # PyMuPDF
 
-def extract_table_from_pdf(pdf_filename):
-    # Open the PDF file
-    with fitz.open(pdf_filename) as pdf:
-        table_content = []  # List to store all rows of the table
-        for page in pdf:  # Iterate over each page
-            blocks = page.get_text("dict")["blocks"]  # Get the text blocks
-            for b in blocks:  # Iterate over each block
-                if "lines" in b:  # Check if the block contains lines
-                    for line in b["lines"]:  # Iterate over each line
-                        spans = line["spans"]  # Get the spans in the line
-                        if len(spans) > 1:  # Check if there are multiple spans (likely a table row)
-                            row = [s["text"].strip() for s in spans if s["text"].strip()]  # Extract text from each span
-                            if row:  # If there is text, add it as a table row
-                                table_content.append(row)
-        return table_content  # Return the extracted table content
-
 def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
         for page_number in range(len(pdf)):
@@ -75,7 +59,15 @@ def download_first_pdf(url):
         print("No PDF link found on the page.")
 
     # Disassemble the PDF to show its internal "code"
-    disassemble_pdf(pdf_filename)
+    table_content = disassemble_pdf(pdf_filename)
+
+    # Turn table_content into comma separated list by taking every second line
+    # and making it the second column of the previous line and saving it as
+    # retailer_uri_list
+    retailer_uri_list = []
+    for i in range(0, len(table_content), 2):
+        retailer_uri_list.append(f"{table_content[i]},{table_content[i + 1]}")
+    
 
 # URL of the AER retailer base URIs page
 url = 'https://www.aer.gov.au/documents/consumer-data-right-list-energy-retailer-base-uris-june-2023'
