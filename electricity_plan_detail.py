@@ -25,6 +25,7 @@ def save_plan_details(brand, plan_id, plan_details):
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
     parser.add_argument('planId', type=str, help='The planId to fetch details for.')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
     setup_logging(args.debug)
 
