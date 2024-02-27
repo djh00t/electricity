@@ -8,27 +8,16 @@ def extract_table_from_pdf(pdf_filename):
     # Open the PDF file
     pdf_document = fitz.open(pdf_filename)
     table_content = []
-    # Define the table headings
-    headings = ["Brand Name", "Retailer Base URI"]
     # Iterate over each page in the PDF
     for page_number in range(len(pdf_document)):
         page = pdf_document[page_number]
-        # Search for the table headings to determine the start of the table
-        for heading in headings:
-            heading_area = page.search_for(heading)
-            if heading_area:
-                # Extract the table rows below the headings
-                rows = page.get_text("dict", clip=heading_area[-1])["blocks"]
-                for row in rows:
-                    if "lines" in row:
-                        for line in row["lines"]:
-                            spans = line["spans"]
-                            if len(spans) == 2:
-                                # Assuming the first column is 'Brand Name' and the second is 'Retailer Base URI'
-                                brand_name = spans[0]["text"].strip()
-                                base_uri = spans[1]["text"].strip()
-                                table_content.append((brand_name, base_uri))
-                break  # Assuming there's only one table per page
+        # Extract all text that is formatted as a table
+        blocks = page.get_text("dict")["blocks"]
+        for block in blocks:
+            if "lines" in block:
+                for line in block["lines"]:
+                    row_data = [span["text"].strip() for span in line["spans"]]
+                    table_content.append(row_data)
         # Check if we've reached the "Change log" section and stop if we have
         text = page.get_text("text")
         if "Change log" in text:
