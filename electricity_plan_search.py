@@ -88,7 +88,6 @@ def main():
                 if should_refresh_plan(plan_filename):
                     plan_details = fetch_plan_details(base_url, headers, plan_id)
                     save_plan_details(brand_name, plan_id, plan_details)
-                    logging.info(f"Plan details for plan ID '{plan_id}' were fetched and saved.")
             else:
                 logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
     else:
