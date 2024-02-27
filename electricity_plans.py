@@ -29,7 +29,7 @@ def fetch_plans(base_url, headers):
             'effective': 'CURRENT',
             'type': 'ALL',
             'page': str(page),
-            'page-size': '100',
+            'page-size': '1000',
             'fuelType': 'ALL'
         }
         response = requests.get(f"{base_url}cds-au/v1/energy/plans", headers=headers, params=params)
