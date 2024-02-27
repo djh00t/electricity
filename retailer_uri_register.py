@@ -24,35 +24,20 @@ def disassemble_pdf(pdf_filename):
 
             text = page.get_text("text")
             lines = text.split('\n')
-            # Find the index of the line containing "Retailer Base URI"
-            start_index = next((i for i, line in enumerate(lines) if "Retailer Base URI" in line), None)
-            # Find the index of the line containing "Change log"
-            end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
-            # If the line is found, print the text from the next line onwards
-            if start_index is not None and end_index is not None:
-                logger.info(f"Found 'Retailer Base URI' on page: {page_number + 1}")
-                # If the "Change log" line is found, only take lines up to that line
-                content_after_title = lines[start_index + 1:end_index]
-                # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
-                non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                logger.info(f"Filtered non-empty lines on page: {page_number + 1}")
-                # Handle broken multiline URIs and clean up URIs
-                i = 0
-                while i < len(non_empty_lines):
-                    brand = non_empty_lines[i].strip()
-                    uri = non_empty_lines[i + 1].strip() if i + 1 < len(non_empty_lines) else ''
-                    # Concatenate broken lines for URI
-                    while not uri.endswith('/') and i + 2 < len(non_empty_lines):
-                        next_line = non_empty_lines[i + 2].strip()
-                        if not next_line.lower().startswith('http'):
-                            uri += ' ' + next_line
-                            i += 1
-                        else:
-                            break
-                    # Ensure URI is not empty, does not contain placeholder text, and is a valid URI
-                    if uri and 'Retailer Base URI' not in uri and uri.lower().startswith('http'):
-                        retailer_data.append({'brand': brand, 'uri': uri.replace('\n', '').replace(' ', '')})
-                    i += 2
+            # Generic text extraction logic
+            for line in lines:
+                # Assuming each line contains a brand name followed by its URI
+                # and they are separated by a known delimiter, e.g., a comma.
+                parts = line.split(',')  # Replace comma with the actual delimiter
+                if len(parts) == 2:
+                    brand, uri = parts[0].strip(), parts[1].strip()
+                    # Validate the extracted data
+                    if uri.lower().startswith('http') and 'placeholder' not in uri.lower():
+                        retailer_data.append({'brand': brand, 'uri': uri})
+                    else:
+                        logger.warning(f"Invalid data found on page {page_number + 1}: {line}")
+                else:
+                    logger.warning(f"Unexpected line format on page {page_number + 1}: {line}")
                     i += 2
     logger.info(f"Completed disassembling PDF: {pdf_filename}")
     return retailer_data
