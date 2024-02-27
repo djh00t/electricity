@@ -6,6 +6,8 @@ import csv
 import subprocess
 from tabulate import tabulate
 from electricity_plan_detail import fetch_plan_details, save_plan_details
+import sys
+import logging
 
 def load_plans_from_all_brands():
     plans_data = []
@@ -66,6 +68,11 @@ def main():
 
 def main():
     ...
+    args = parser.parse_args()
+    filtered_plans = filter_plans_by_postcode(plans_data, args.postcode)
+    normalized_provider_urls = {name.lower().replace(' ', '_'): url for name, url in provider_urls.items()}
+    headers = {'x-v': '1'}
+
     if args.providers:
         providers = get_providers_from_plans(filtered_plans)
     elif args.plans:
@@ -78,11 +85,12 @@ def main():
             if base_url:
                 plan_details = fetch_plan_details(base_url, headers, plan_id)
                 save_plan_details(brand_name, plan_id, plan_details)
-                    logging.info(f"Plan details for plan ID '{plan_id}' were fetched and saved.")
-                else:
-                    logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
+                logging.info(f"Plan details for plan ID '{plan_id}' were fetched and saved.")
             else:
-                logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
+                logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
+    else:
+        logging.error(f"Base URL for provider '{brand_name}' not found. Looked up as '{normalized_brand_name}'.")
+
     # Output results after fetching and saving all plan details
     if args.providers:
         if args.json:
