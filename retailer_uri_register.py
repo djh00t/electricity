@@ -25,7 +25,15 @@ def disassemble_pdf(pdf_filename):
         for page_number in range(len(pdf)):
             page = pdf[page_number]
             print(f"--- Page {page_number + 1} ---")
-            print(page.get_text("text"))
+            text = page.get_text("text")
+            lines = text.split('\n')
+            # Find the index of the line containing "Energy Retailer Base URIs"
+            start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
+            # If the line is found, print the text from the next line onwards
+            if start_index != -1:
+                print('\n'.join(lines[start_index + 1:]))
+            else:
+                print(text)
 
 def download_first_pdf(url):
     # Send a GET request to the URL
