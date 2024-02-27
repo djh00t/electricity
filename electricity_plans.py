@@ -46,10 +46,10 @@ def fetch_plans(base_url, headers):
 
 def save_plans_to_file(provider_name, plans):
     base_directory = "brands"
-    directory = f"{base_directory}/{provider_name}"
+    directory = f"{base_directory}/{provider_name.replace(' ', '_')}"
     if not os.path.exists(directory):
         os.makedirs(directory)
-    filename = f"{directory}/plans.json"
+    filename = f"{directory.replace(' ', '_')}/plans.json"
     if plans:  # If plans is not an empty list, write to file
         with open(filename, 'w') as file:
             file.write(json.dumps(plans, indent=4))
