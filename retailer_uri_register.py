@@ -11,11 +11,16 @@ import fitz  # PyMuPDF
 
 def disassemble_pdf(pdf_filename):
     with fitz.open(pdf_filename) as pdf:
+        content_lines = []
         for page_number in range(len(pdf)):
             page = pdf[page_number]
             # print(f"--- Page {page_number + 1} ---")
             text = page.get_text("text")
             lines = text.split('\n')
+            start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
+            end_index = next((i for i, line in enumerate(lines) if "Change log" in line), None)
+            if start_index != -1:
+                content_after_title = lines[start_index + 1:end_index]
             # Find the index of the line containing "Energy Retailer Base URIs"
             start_index = next((i for i, line in enumerate(lines) if "Energy Retailer Base URIs" in line), -1)
             # Find the index of the line containing "Change log"
@@ -26,15 +31,15 @@ def disassemble_pdf(pdf_filename):
                 content_after_title = lines[start_index + 1:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in content_after_title if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
+                content_lines.extend(non_empty_lines)
             else:
                 # If the "Change log" line is found, only take lines up to that line
                 if end_index is not None:
                     lines = lines[:end_index]
                 # Filter out lines containing "www.aer.gov.au/cdr" and lines that are just page numbers (standalone numbers)
                 non_empty_lines = [line for line in lines if "www.aer.gov.au/cdr" not in line and line.strip() and not line.strip().isdigit()]
-                print('\n'.join(non_empty_lines))
-    return non_empty_lines
+                content_lines.extend(non_empty_lines)
+    return content_lines
 
 def download_first_pdf(url):
     # Send a GET request to the URL
