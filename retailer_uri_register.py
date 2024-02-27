@@ -2,6 +2,27 @@ import requests
 from bs4 import BeautifulSoup
 import urllib.parse
 import os
+import fitz  # PyMuPDF
+
+def extract_table_from_pdf(pdf_filename):
+    # Open the PDF file
+    pdf_document = fitz.open(pdf_filename)
+    table_content = []
+    # Iterate over each page in the PDF
+    for page_number in range(len(pdf_document)):
+        page = pdf_document[page_number]
+        text = page.get_text("text")
+        # Check if we've reached the "Change log" section and stop if we have
+        if "Change log" in text:
+            break
+        # Extract table data from the page
+        # This is a placeholder for the actual table extraction logic
+        # which will depend on the specific structure and format of the table in the PDF
+        # ...
+        # Add the extracted data to the table_content list
+        # table_content.extend(extracted_data)
+    pdf_document.close()
+    return table_content
 
 def download_first_pdf(url):
     # Send a GET request to the URL
@@ -28,6 +49,10 @@ def download_first_pdf(url):
         with open(pdf_filename, 'wb') as f:
             f.write(pdf_response.content)
         print(f"PDF downloaded: {pdf_filename}")
+        # Extract the table from the downloaded PDF
+        table_content = extract_table_from_pdf(pdf_filename)
+        # Output the extracted table content
+        print(table_content)
     else:
         print("No PDF link found on the page.")
 
