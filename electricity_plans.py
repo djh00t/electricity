@@ -7,7 +7,7 @@ def load_provider_urls(filename):
     with open(filename, newline='') as csvfile:
         reader = csv.DictReader(csvfile)  # Now the header will be the second row
         reader = csv.DictReader(csvfile)
-        return {row['Brand Name']: row['Retailer Base URI'] for row in reader}
+        return {row['Brand Name']: row['Retailer Base URI'].strip() for row in reader}
 
 def fetch_plans(base_url, headers):
     page = 1
