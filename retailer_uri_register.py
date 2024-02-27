@@ -31,7 +31,11 @@ def disassemble_pdf(pdf_filename):
                 i = 0
                 while i < len(non_empty_lines):
                     brand = non_empty_lines[i].strip()
+                    # Ensure we do not go out of bounds
+                if i + 1 < len(non_empty_lines):
                     uri = non_empty_lines[i + 1].strip()
+                else:
+                    break
                     # Check if URI is broken over multiple lines
                     while not uri.endswith('/') and i + 2 < len(non_empty_lines):
                         i += 1
@@ -53,7 +57,11 @@ def disassemble_pdf(pdf_filename):
                 i = 0
                 while i < len(non_empty_lines):
                     brand = non_empty_lines[i].strip()
+                    # Ensure we do not go out of bounds
+                if i + 1 < len(non_empty_lines):
                     uri = non_empty_lines[i + 1].strip()
+                else:
+                    break
                     # Check if URI is broken over multiple lines
                     while not uri.endswith('/') and i + 2 < len(non_empty_lines):
                         i += 1
