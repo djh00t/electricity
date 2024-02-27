@@ -1,4 +1,4 @@
-import argparse
+import argparse, sys
 import os
 import json
 import requests
@@ -6,6 +6,7 @@ import requests
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
     return response.json()
+from utilities import load_provider_urls
 
 def save_plan_details(brand, plan_id, plan_details):
     brand_directory = f"plans/{brand}"
