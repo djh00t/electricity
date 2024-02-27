@@ -8,6 +8,11 @@ import requests
 from datetime import datetime, timezone, timedelta
 from concurrent.futures import ProcessPoolExecutor
 
+def download_and_save_plan_details(plan_info):
+    brand_name, plan_id, base_url, headers = plan_info
+    plan_details = fetch_plan_details(base_url, headers, plan_id)
+    save_plan_details(brand_name, plan_id, plan_details)
+
 REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
 DETAIL_THREADS = 10  # Number of parallel processes for checking plan details
 
@@ -105,7 +110,11 @@ def main():
         logging.info(f"Plan details for plan ID '{args.planId}' were downloaded and saved.")
     else:
         logging.info(f"Plan details for plan ID '{args.planId}' were skipped as they are up to date.")
+    # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
+
+def main():
+    # The existing main function code remains unchanged.
+    # Ensure this is the end of the main function and there are no duplicates.
 
 if __name__ == '__main__':
     main()
-from utilities import load_provider_urls
