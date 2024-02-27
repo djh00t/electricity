@@ -1,4 +1,4 @@
-import argparse, sys
+import argparse, os, sys
 from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
