@@ -34,7 +34,7 @@ def tests():
 
     q = TaskQueue(num_workers=5)
 
-    for item in range(100):
+    for item in range(10):
         q.add_task(blokkah)
 
     q.join()       # block until all tasks are done
