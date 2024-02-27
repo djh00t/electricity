@@ -4,6 +4,8 @@ import time
 import random
 from threading import Thread
 
+NUM_TASKS_TO_ADD = 10  # Define the number of tasks to be added to the queue
+
 class TaskQueue(Queue):
 
     def __init__(self, num_workers=1):
@@ -30,9 +32,10 @@ class TaskQueue(Queue):
 
 
 def add_tasks_at_random_intervals(queue, task, min_ms=50, max_ms=1000):
-    while True:
+    for _ in range(NUM_TASKS_TO_ADD):
         time.sleep(random.randint(min_ms, max_ms) / 1000.0)
         queue.add_task(task)
+    print(f"Added {NUM_TASKS_TO_ADD} tasks to the queue.")
 
 def tests():
     def blokkah(*args, **kwargs):
