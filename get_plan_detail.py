@@ -1,14 +1,12 @@
 import argparse, sys
 import os
+from config import REFRESH_DAYS, DETAIL_THREADS
 from datetime import datetime, timezone, timedelta
 from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
 import requests
 from concurrent.futures import ProcessPoolExecutor
-
-REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
-DETAIL_THREADS = 10  # Number of parallel processes for checking plan details
 
 def check_plan_exists(filename):
     exists = os.path.isfile(filename)
@@ -67,7 +65,7 @@ def check_refresh_plan(filename):
     return filename, needs_refresh
 
 def should_refresh_plans(filenames):
-    with ProcessPoolExecutor(max_workers=DETAIL_THREADS) as executor:
+    with ProcessPoolExecutor(max_workers=config.DETAIL_THREADS) as executor:
         results = executor.map(check_refresh_plan, filenames)
     return {filename: needs_refresh for filename, needs_refresh in results}
 
