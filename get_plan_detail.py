@@ -2,11 +2,12 @@ import argparse, sys
 import os
 from config import REFRESH_DAYS, DETAIL_THREADS
 from datetime import datetime, timezone, timedelta
-from utilities import load_provider_urls, ensure_brand_directory
+from utilities import ensure_brand_directory
 import logging
 import json
 import requests
 from concurrent.futures import ProcessPoolExecutor
+from get_plans import PROVIDER_URLS
 
 def check_plan_exists(filename):
     exists = os.path.isfile(filename)
@@ -96,8 +97,8 @@ def main():
         sys.stderr.write("Error: Plan ID is required.\n")
         sys.exit(1)
 
-    # Load provider URLs from the CSV file to get the base URL
-    provider_urls = load_provider_urls()
+    # Use global provider URLs variable
+    provider_urls = PROVIDER_URLS
     base_url = provider_urls.get(brand)
     if not base_url:
         sys.stderr.write(f"Error: The brand '{brand}' was not found in provider URLs.\n")

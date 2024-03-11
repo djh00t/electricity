@@ -23,7 +23,7 @@ Example:
 
 from utilities import ensure_brand_directory, is_file_older_than
 from config import REFRESH_DAYS
-from get_providers import download_and_extract_pdf_data
+from utilities import load_provider_urls
 import logging
 import os
 import requests
@@ -36,6 +36,8 @@ from utilities import is_file_older_than, load_provider_urls
 from concurrent.futures import ThreadPoolExecutor
 from config import DETAIL_THREADS
 from config import REFRESH_DAYS
+
+PROVIDER_URLS = load_provider_urls()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')
@@ -136,7 +138,7 @@ def main():
     to refresh the plans for a provider.
     """
     provider_data = download_and_extract_pdf_data()
-    provider_urls = {provider['brand']: provider['uri'] for provider in provider_data}
+    provider_urls = PROVIDER_URLS
     logging.info(f"Number of providers found: {len(provider_urls)}")
     headers = {'x-v': '1'}
     total_providers = 0
