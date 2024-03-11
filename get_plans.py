@@ -5,7 +5,6 @@ This script fetches electricity plans from a list of provider URLs and saves the
 Each provider's plans are saved in a directory named after the provider within a 'brands' directory.
 
 The script uses the 'x-v: 1' header for API requests and queries the API with specific parameters
-to retrieve current plans of all types and fuel types, paginating through results as necessary.
 
 Plans are saved to 'brands/{brand}/plans.json' and include a 'meta.lastDownloaded' field with the
 current datetime in UTC. Directories are created as needed. Plans are only updated if they are
@@ -14,8 +13,6 @@ older than the interval specified by 'REFRESH_DAYS' in 'config.py'.
 Usage:
     python get_plans.py [--debug]
 
-Options:
-    --debug  Enable debug logging for more verbose output.
 
 Example:
     python get_plans.py --debug
@@ -24,7 +21,6 @@ Example:
 import concurrent.futures
 from utilities import ensure_brand_directory, is_file_older_than
 #from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
-from config import REFRESH_DAYS
 from utilities import load_provider_urls, download_and_extract_pdf_data
 import logging
 import os
@@ -33,12 +29,8 @@ import json
 from datetime import datetime, timezone, timedelta
 from datetime import datetime
 import argparse
-import subprocess
-from pathlib import Path
-from utilities import is_file_older_than, load_provider_urls, ensure_brand_directory
 from concurrent.futures import ThreadPoolExecutor
-from config import DETAIL_THREADS
-from config import REFRESH_DAYS
+from config import DETAIL_THREADS, REFRESH_DAYS
 
 
 parser = argparse.ArgumentParser()
