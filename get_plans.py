@@ -62,6 +62,21 @@ def save_plans_to_file(provider_name, plans):
     elif os.path.exists(filename):  # If plans is empty and file exists, delete the file
         os.remove(filename)
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
+import os
+from datetime import datetime, timedelta
+import time
+
+def fetch_plans(base_url, headers):
+    ...
+
+def save_plans_to_file(provider_name, plans):
+    ...
+
+def is_file_older_than(filepath, seconds):
+    if not os.path.isfile(filepath):
+        return True
+    file_mod_time = os.path.getmtime(filepath)
+    return (time.time() - file_mod_time) > seconds
 
 def main():
     provider_data = download_and_extract_pdf_data()
@@ -72,6 +87,10 @@ def main():
     total_plans = 0
     for brand, brand_url in provider_urls.items():
         logging.info(f"Processing provider: {brand}")
+        plans_file_path = f"brands/{brand.replace(' ', '_').lower()}/plans.json"
+        if not is_file_older_than(plans_file_path, BRAND_REFRESH_INTERVAL):
+            logging.info(f"Skipping provider '{brand}' as plans.json is up-to-date.")
+            continue
         plans = fetch_plans(brand_url, headers)
         if plans:
             save_plans_to_file(brand, plans)
