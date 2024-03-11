@@ -1,8 +1,8 @@
-.aider*
-brands/*/*.json
 # Ignore files containing "test" in the root directory, but not directories named test or tests
 test*
 !test/
 !tests/
 __pycache__/
-archive/
+.aider*
+brands/
+
