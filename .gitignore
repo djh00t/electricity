@@ -1,3 +1,6 @@
 .aider*
 brands/*/*.json
-test[0-9].*
+test[0-9].*# Ignore files containing "test" in the root directory, but not directories named test or tests
+test*
+!test/
+!tests/
