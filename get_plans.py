@@ -195,7 +195,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
         None
     """
 def update_plan_details(brand, plan_ids, base_url, headers):
-    def download_and_save(brand, plan_id):
+    def download_and_save(plan_id):
         brand_sanitized = brand.replace(' ', '_').lower()
         plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
         if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
@@ -220,7 +220,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
         save_plan_details(brand, plan_id, plan_details)
 
     with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
-        futures = [executor.submit(download_and_save, brand, plan_id) for plan_id in plan_ids]
+        futures = [executor.submit(download_and_save, plan_id) for plan_id in plan_ids]
         for future in concurrent.futures.as_completed(futures):
             future.result()  # This will raise any exceptions caught by the worker threads
             brand_sanitized = brand.replace(' ', '_').lower()
