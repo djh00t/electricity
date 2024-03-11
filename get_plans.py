@@ -22,7 +22,7 @@ Example:
 """
 
 from utilities import ensure_brand_directory, is_file_older_than
-from config import BRAND_REFRESH_INTERVAL
+from config import REFRESH_DAYS
 from get_providers import download_and_extract_pdf_data
 import logging
 import os
@@ -137,7 +137,7 @@ def main():
     total_plans = 0
     for brand, brand_url in provider_urls.items():
         plans_file_path = f"brands/{brand.replace(' ', '_').lower()}/plans.json"
-        if not is_file_older_than(plans_file_path, BRAND_REFRESH_INTERVAL):
+        if not is_file_older_than(plans_file_path, REFRESH_DAYS * 24 * 60 * 60):
             logging.info(f"Skipping provider '{brand}' as plans.json is up-to-date.")
             continue
         logging.info(f"Processing provider: {brand}")
