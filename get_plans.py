@@ -29,11 +29,12 @@ import logging
 import os
 import requests
 import json
+from datetime import datetime, timezone, timedelta
 from datetime import datetime
 import argparse
 import subprocess
 from pathlib import Path
-from utilities import is_file_older_than, load_provider_urls
+from utilities import is_file_older_than, load_provider_urls, ensure_brand_directory
 from concurrent.futures import ThreadPoolExecutor
 from config import DETAIL_THREADS
 from config import REFRESH_DAYS
@@ -133,6 +134,38 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 
+def fetch_plan_details(base_url, headers, plan_id):
+    """
+    Fetch the details of a specific plan from the API.
+
+    Args:
+        base_url (str): The base URL for the provider's API.
+        headers (dict): The headers to use for the API request.
+        plan_id (str): The unique identifier for the plan.
+
+    Returns:
+        dict: The JSON response containing the plan details.
+    """
+    response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
+    return response.json()
+
+def save_plan_details(brand_name, plan_id, plan_details):
+    """
+    Save the details of a plan to a JSON file.
+
+    Args:
+        brand_name (str): The name of the brand associated with the plan.
+        plan_id (str): The unique identifier for the plan.
+        plan_details (dict): The plan details to save.
+    """
+    brand_directory = ensure_brand_directory(brand_name)
+    filename = f"{brand_directory}/{plan_id}.json"
+    last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
+    plan_details['meta'] = {'lastDownloaded': last_downloaded}
+    with open(filename, 'w') as file:
+        json.dump(plan_details, file, indent=4)
+    logging.info(f"Plan details for plan ID '{plan_id}' were saved.")
+
 def update_plan_details(brand, plan_ids, base_url, headers):
     """
     Update the plan details for the given brand and plan IDs.
@@ -148,18 +181,20 @@ def update_plan_details(brand, plan_ids, base_url, headers):
     """
     with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
         for plan_id in plan_ids:
-            plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
-            if plan_detail_file.exists() and not is_file_older_than(
-                plan_detail_file, REFRESH_DAYS * 24 * 60 * 60
-            ):
-                logging.info(
-                    f"Skipping plan detail for '{plan_id}' as it is up-to-date."
-                )
-                continue
-            logging.info(f"Updating plan detail for '{plan_id}'.")
-            # Pass the plan information as a dictionary to avoid command-line argument parsing
-            plan_info = {'brand': brand, 'plan_id': plan_id, 'base_url': base_url, 'headers': headers}
-            executor.submit(download_and_save_plan_details, plan_info)
+            plan_detail_file = f"brands/{brand}/{plan_id}.json"
+            if os.path.isfile(plan_detail_file):
+                with open(plan_detail_file, 'r') as file:
+                    plan_data = json.load(file)
+                last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
+                if last_downloaded_str:
+                    last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
+                    current_time = datetime.now(timezone.utc)
+                    if (current_time - last_downloaded) < timedelta(days=REFRESH_DAYS):
+                        logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
+                        continue
+            logging.info(f"Downloading plan detail for '{plan_id}'.")
+            plan_details = fetch_plan_details(base_url, headers, plan_id)
+            save_plan_details(brand, plan_id, plan_details)
 
 
 def setup_logging(debug):
