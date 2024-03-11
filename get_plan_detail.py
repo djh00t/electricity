@@ -7,7 +7,7 @@ import logging
 import json
 import requests
 from concurrent.futures import ProcessPoolExecutor
-from providers import PROVIDER_URLS
+from utilities import load_provider_urls
 
 def check_plan_exists(filename):
     exists = os.path.isfile(filename)
@@ -23,14 +23,6 @@ def check_plan_exists(filename):
             if time_difference > timedelta(days=REFRESH_DAYS):
                 updated = True
     return exists, updated
-
-def download_and_save_plan_details(plan_info):
-    brand_name, plan_id, base_url, headers = plan_info
-    plan_details = fetch_plan_details(base_url, headers, plan_id)
-    save_plan_details(brand_name, plan_id, plan_details)
-
-REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
-DETAIL_THREADS = 10  # Number of parallel processes for checking plan details
 
 def fetch_plan_details(base_url, headers, plan_id):
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
@@ -79,7 +71,6 @@ def save_plan_details(brand_name, plan_id, plan_details):
         json.dump(plan_details, file, indent=4)
     logging.info(f"Plan details for plan ID '{plan_id}' were saved.")
 
-def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
     parser.add_argument('planId', type=str, help='The planId to fetch details for.')
     parser.add_argument('brand', type=str, help='The brand name to fetch details for.')
@@ -97,8 +88,8 @@ def main():
         sys.stderr.write("Error: Plan ID is required.\n")
         sys.exit(1)
 
-    # Use global provider URLs variable
-    provider_urls = PROVIDER_URLS
+    # Load provider URLs
+    provider_urls = load_provider_urls()
     base_url = provider_urls.get(brand)
     if not base_url:
         sys.stderr.write(f"Error: The brand '{brand}' was not found in provider URLs.\n")
@@ -113,6 +104,11 @@ def main():
     else:
         logging.info(f"Plan details for plan ID '{args.planId}' are up to date and were not refreshed.")
     # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
+
+def download_and_save_plan_details(plan_info):
+    brand_name, plan_id, base_url, headers = plan_info
+    plan_details = fetch_plan_details(base_url, headers, plan_id)
+    save_plan_details(brand_name, plan_id, plan_details)
 
 if __name__ == '__main__':
     main()
