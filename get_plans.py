@@ -21,6 +21,7 @@ Example:
     python get_plans.py --debug
 """
 
+import concurrent.futures
 from utilities import ensure_brand_directory, is_file_older_than
 #from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
 from config import REFRESH_DAYS
