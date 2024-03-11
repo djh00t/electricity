@@ -1,5 +1,5 @@
-import os
-from utilities import load_provider_urls, ensure_brand_directory
+from utilities import ensure_brand_directory
+from get_providers import download_and_extract_pdf_data
 import logging
 import requests
 import json
@@ -56,10 +56,8 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 def main():
-    base_directory = "brands"
-    if not os.path.exists(base_directory):
-        os.makedirs(base_directory)
-    provider_urls = load_provider_urls('electricity_plan_urls.csv')
+    provider_data = download_and_extract_pdf_data()
+    provider_urls = {provider['brand']: provider['uri'] for provider in provider_data}
     headers = {'x-v': '1'}
     total_providers = 0
     total_plans = 0
