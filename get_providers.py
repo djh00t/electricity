@@ -21,6 +21,7 @@ import urllib.parse
 import fitz  # PyMuPDF
 import logging
 from config import RETAILER_PDF_URL
+from config import RETAILER_PDF_URL
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -59,7 +60,7 @@ def extract_pdf_data(pdf_path):
     logger.debug("Completed PDF data extraction")  # Extraction complete
     return retailer_data
 
-def download_and_extract_pdf_data(url):
+def download_and_extract_pdf_data():
     """
     Downloads the first PDF found at the given URL and extracts data from it to memory.
 
@@ -70,7 +71,7 @@ def download_and_extract_pdf_data(url):
         list of dict: A list of dictionaries containing retailer 'brand' and 'uri'.
     """
     logger.info(f"Fetching URL: {url}")
-    response = requests.get(url)
+    response = requests.get(RETAILER_PDF_URL)
     response.raise_for_status()
 
     soup = BeautifulSoup(response.text, 'html.parser')
@@ -92,9 +93,7 @@ def download_and_extract_pdf_data(url):
     # Here we pass the PDF content directly as a stream
     return extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the extract_pdf_data function
 
-# The URL to fetch the PDF from
-url = 'https://www.aer.gov.au/documents/consumer-data-right-list-energy-retailer-base-uris-june-2023'
 # Perform the download and data extraction.
-retailer_data = download_and_extract_pdf_data(url)
+retailer_data = download_and_extract_pdf_data()
 # Optionally, you can now use retailer_data as needed, for example:
 # print(retailer_data)
