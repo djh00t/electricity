@@ -149,7 +149,7 @@ def main():
         if plans:
             save_plans_to_file(brand, plans)
             plan_ids = [plan['planId'] for plan in plans]
-            update_plan_details(brand, plan_ids)
+            update_plan_details(brand, plan_ids, brand_url, headers)
             total_providers += 1
             total_plans += len(plans)
 
