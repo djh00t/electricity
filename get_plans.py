@@ -134,6 +134,12 @@ def main():
     to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
     to refresh the plans for a provider.
     """
+    parser = argparse.ArgumentParser(description='Fetch and save electricity plans.')
+    parser.add_argument('--debug', action='store_true', help='Enable debug logging')
+    args = parser.parse_args()
+
+    setup_logging(args.debug)
+
     provider_urls = load_provider_urls()
     logging.info(f"Number of providers found: {len(provider_urls)}")
     headers = {'x-v': '1'}
@@ -152,6 +158,9 @@ def main():
             update_plan_details(brand, plan_ids, brand_url, headers)
             total_providers += 1
             total_plans += len(plans)
+
+if __name__ == '__main__':
+    main()
 
 if __name__ == '__main__':
     main()
