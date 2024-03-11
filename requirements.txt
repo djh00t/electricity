@@ -1,3 +1,4 @@
 requests
 tabulate
 beautifulsoup4
+PyMuPDF
