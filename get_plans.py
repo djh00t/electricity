@@ -22,6 +22,16 @@ else:
 logging.info("Starting electricity plans script")
 
 def fetch_plans(base_url, headers):
+    """
+    Fetches all plans for a given provider using their base URL.
+
+    Args:
+        base_url (str): The base URL of the provider's API endpoint.
+        headers (dict): The headers to use for the API request.
+
+    Returns:
+        list: A list of plan dictionaries fetched from the provider.
+    """
     page = 1
     plans = []
     logging.debug(f"Fetching plans for provider with base URL: {base_url}")
@@ -54,6 +64,16 @@ def fetch_plans(base_url, headers):
     return plans
 
 def save_plans_to_file(provider_name, plans):
+    """
+    Saves a list of plans to a JSON file for a given provider.
+
+    Args:
+        provider_name (str): The name of the provider.
+        plans (list): The list of plans to save.
+
+    The function creates a directory for the provider if it does not exist,
+    and either writes the plans to a file or deletes the existing file if no plans are fetched.
+    """
     directory = ensure_brand_directory(provider_name)
     filename = f"{directory.replace(' ', '_')}/plans.json"
     if plans:  # If plans is not an empty list, write to file
@@ -66,6 +86,13 @@ def save_plans_to_file(provider_name, plans):
 
 
 def main():
+    """
+    The main function that orchestrates the fetching and saving of electricity plans.
+
+    It processes command-line arguments, sets up logging, and iterates over provider URLs
+    to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
+    to refresh the plans for a provider.
+    """
     provider_data = download_and_extract_pdf_data()
     provider_urls = {provider['brand']: provider['uri'] for provider in provider_data}
     logging.info(f"Number of providers found: {len(provider_urls)}")
