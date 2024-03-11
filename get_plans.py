@@ -115,11 +115,11 @@ def save_plans_to_file(provider_name, plans):
 def update_plan_details(brand, plan_ids):
     for plan_id in plan_ids:
         plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
-        if not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
+        if plan_detail_file.exists() and not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
             logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
             continue
         logging.info(f"Updating plan detail for '{plan_id}'.")
-        subprocess.run(['python', 'get_plan_detail.py', plan_id], check=True)
+        subprocess.run(['python', 'get_plan_detail.py', '--planId', plan_id, '--brand', brand], check=True)
 
 def main():
     """

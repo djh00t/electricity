@@ -80,31 +80,20 @@ def save_plan_details(brand_name, plan_id, plan_details):
 
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
-    parser.add_argument('planId', type=str, help='The planId to fetch details for.')
+    parser.add_argument('--planId', type=str, help='The planId to fetch details for.')
+    parser.add_argument('--brand', type=str, help='The brand name to fetch details for.')
     parser.add_argument('--debug', action='store_true', help='Enable debug logging')
     args = parser.parse_args()
     setup_logging(args.debug)
 
-    # Search for the brand by looking through the JSON files in the plans directory
-    # Search for the provider name by looking through the JSON files in the plans directory
-    plans_directory = ensure_brand_directory('')
-    brand = None
-    for brand_directory in os.listdir(plans_directory):
-        brand_path = os.path.join(plans_directory, brand_directory)
-        if os.path.isdir(brand_path):
-            plans_file = os.path.join(brand_path, 'plans.json')
-            if os.path.exists(plans_file):
-                with open(plans_file, 'r') as file:
-                    plans = json.load(file)
-                    for plan in plans:
-                        if plan.get('planId') == args.planId:
-                            brand = plan.get('brandName')
-                            break
-        if brand:
-            break
-
+    brand = args.brand
     if not brand:
-        sys.stderr.write(f"Error: The planId '{args.planId}' was not found in any plan files.\n")
+        sys.stderr.write("Error: Brand name is required.\n")
+        sys.exit(1)
+
+    plan_id = args.planId
+    if not plan_id:
+        sys.stderr.write("Error: Plan ID is required.\n")
         sys.exit(1)
 
     # Load provider URLs from the CSV file to get the base URL
