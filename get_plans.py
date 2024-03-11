@@ -243,9 +243,19 @@ def main():
     total_plans = 0
     for brand, brand_url in provider_urls.items():
         plans_file_path = f"brands/{brand.replace(' ', '_').lower()}/plans.json"
-        if not is_file_older_than(plans_file_path, REFRESH_DAYS * 24 * 60 * 60):
-            logging.info(f"Skipping provider '{brand}' as plans.json is up-to-date.")
-            continue
+        if is_file_older_than(plans_file_path, REFRESH_DAYS * 24 * 60 * 60):
+            logging.info(f"Processing provider: {brand}")
+            plans = fetch_plans(brand_url, headers)
+            if plans:
+                save_plans_to_file(brand, plans)
+                total_providers += 1
+                total_plans += len(plans)
+        # Check if individual plan details are up-to-date
+        if os.path.exists(plans_file_path):
+            with open(plans_file_path, 'r') as file:
+                plans = json.load(file)
+            plan_ids = [plan["planId"] for plan in plans]
+            update_plan_details(brand, plan_ids, brand_url, headers)
         logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
         if plans:
