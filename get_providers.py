@@ -20,6 +20,7 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import fitz  # PyMuPDF
 import logging
+from config import RETAILER_PDF_URL
 
 # Configure logging
 logger = logging.getLogger(__name__)
