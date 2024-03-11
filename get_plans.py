@@ -73,11 +73,11 @@ def main():
     total_providers = 0
     total_plans = 0
     for brand, brand_url in provider_urls.items():
-        logging.info(f"Processing provider: {brand}")
         plans_file_path = f"brands/{brand.replace(' ', '_').lower()}/plans.json"
         if not is_file_older_than(plans_file_path, BRAND_REFRESH_INTERVAL):
             logging.info(f"Skipping provider '{brand}' as plans.json is up-to-date.")
             continue
+        logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
         if plans:
             save_plans_to_file(brand, plans)
