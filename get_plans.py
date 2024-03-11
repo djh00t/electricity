@@ -58,6 +58,7 @@ def save_plans_to_file(provider_name, plans):
 def main():
     provider_data = download_and_extract_pdf_data()
     provider_urls = {provider['brand']: provider['uri'] for provider in provider_data}
+    logging.info(f"Number of providers found: {len(provider_urls)}")
     headers = {'x-v': '1'}
     total_providers = 0
     total_plans = 0
