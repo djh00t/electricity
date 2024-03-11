@@ -1,12 +1,14 @@
 import argparse, sys
 import os
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from utilities import load_provider_urls, ensure_brand_directory
 import logging
 import json
 import requests
-from datetime import datetime, timezone, timedelta
 from concurrent.futures import ProcessPoolExecutor
+
+REFRESH_DAYS = 1  # Number of days after which the plan should be refreshed
+DETAIL_THREADS = 10  # Number of parallel processes for checking plan details
 
 def check_plan_exists(filename):
     exists = os.path.isfile(filename)
@@ -39,9 +41,8 @@ def setup_logging(debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
-        logging.info(f"Plan details for plan ID '{plan_id}' were skipped as they are up to date.")
         logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
-from utilities import load_provider_urls
+        # Note: The logging statement for skipping up-to-date plan details has been moved to the appropriate function.
 
 def check_refresh_plan(filename):
     needs_refresh = False
@@ -77,7 +78,7 @@ def save_plan_details(brand_name, plan_id, plan_details):
     plan_details['meta'] = {'lastDownloaded': last_downloaded}
     with open(filename, 'w') as file:
         json.dump(plan_details, file, indent=4)
-    # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
+    logging.info(f"Plan details for plan ID '{plan_id}' were saved.")
 
 def main():
     parser = argparse.ArgumentParser(description='Fetch and save plan details.')
@@ -122,7 +123,7 @@ def main():
         save_plan_details(brand, args.planId, plan_details)
         logging.info(f"Plan details for plan ID '{args.planId}' were downloaded and saved.")
     else:
-        logging.info(f"Plan details for plan ID '{args.planId}' were skipped as they are up to date.")
+        logging.info(f"Plan details for plan ID '{args.planId}' are up to date and were not refreshed.")
     # logging.info(f"Plan details for plan ID '{plan_id}' were refreshed.")
 
 if __name__ == '__main__':
