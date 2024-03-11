@@ -197,6 +197,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
 def update_plan_details(brand, plan_ids, base_url, headers):
     def download_and_save(plan_id):
         brand_sanitized = brand.replace(' ', '_').lower()
+        plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
         # plan_detail_file variable is now correctly defined inside the loop
         if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
             logging.info(f"Plan detail file exists: {plan_detail_file}")
