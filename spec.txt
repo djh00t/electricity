@@ -1,0 +1,144 @@
+GET Providers - get_providers.py
+===============================
+This file takes a URL, scrapes a PDF from it and returns a list of providers
+and their URLs. This script will also save the list of providers to a json file
+called providers.json in the brands directory. If the directory doesn't exist
+it should be created. This script should only run once a day, validated by
+checking the meta.lastDownloaded field in providers.json The REFRESH_PROVIDERS
+constant is set to 1 day and determines how often the script should update the file.
+
+GET API - get_api.py
+===============================
+This file takes a list of related URLs for API endpoints which return json data with
+"data", "meta" and "links" top level keys. It then processes the responses,
+merging the content within the "data" keys into a list of dictionaries which is
+returned once all the requests have been successfully processed. A common
+header of "x-v: 1" is to be used for all URLs.
+
+This file queues the requests and processes them in parallel using pythons
+builtin queue and threading modules. The number of workers is set to 4 by
+default. Timeout is set to 5 seconds, after which the URL is requeued to be
+tried again.
+
+If a URL is submitted with an optional filename and brand the results of that URL will
+be saved to the filename in the brands/{brand}/ directory as {filename}.json.
+If the directory doesn't exist it should be created. current datetime and UTC
+timezone is added to the meta.lastDownloaded field in the json file which is
+only updated/replaced if the file is older than REFRESH_PLAN_DETAILS days, where
+REFRESH_PLAN_DETAILS is a constant set to 7
+
+
+GET Plans - get_plans.py
+===============================
+This file gets the list of plans from the electricity plans API. It takes a
+list of provider URLs from brands/providers.json and loops through each of the
+provider URI's using the functions in get_api.py
+
+Endpoint value is ${BASE_PROVIDER_URL}"cds-au/v1/energy/plans"
+Header Value is: "x-v: 1"
+URL Query #1 is "effective=CURRENT"
+URL Query #2 is "type=ALL"
+URL Query #3 is "page=${PAGE}" First query is "page=1" then continue to query until the value in meta.totalPages is reached.
+URL Query #4 is "page-size=1000"
+URL Query #5 is "fuelType=ALL"
+
+The results are then saved to brands/{brand}/plans.json and the meta.lastDownloaded field is added to the
+plans.json file with the current datetime and UTC timezone. If the directory
+doesn't exist it should be created. Plan files should only be updated if they
+are older than REFRESH_PLAN days, where REFRESH_PLAN is a constant set to 7.
+
+GET Plan Details - get_plan_details.py
+===============================
+Uses the functions in get_api.py to retrieve the details of the plan or plans
+from the electricity plan details API endpoint at {base_url}cds-au/v1/energy/plans/{plan_id}
+
+When run with a planId as argument, will retrieve the details of the plan from
+the electricity plans API. It will then save the details to a json file in the
+brands/{brand}/ directory as {planId}.json
+
+When run without a planId, it will retrieve all planIds from the plans.json in
+all the brands directories and save the details to a json file in the
+brands/{brand}/ directory as {planId}.json
+
+When run with a brand as argument, it will retrieve all planIds from the
+plans.json in the brands/{brand}/ directory and save the details to a json file
+in the brands/{brand}/ directory as {planId}.json
+
+When run with a brand and planId as argument, it will retrieve the details of
+the plan from the electricity plans API and save the details to a json file in
+the brands/{brand}/ directory as {planId}.json
+
+When plans are saved to disk, the meta.lastDownloaded field is added to the
+json file with the current datetime and UTC timezone. If the directory doesn't
+exist it should be created. Plan files should only be updated if they are older
+than REFRESH_PLAN_DETAILS days, where REFRESH_PLAN_DETAILS is a constant set to 7.
+
+
+
+
+
+
+
+
+
+
+
+Electricity plans script.
+1. List of base provider endpoints is in electricity_plan_urls.csv, load this data when starting
+2. Endpoint value is ${BASE_PROVIDER_URL}"cds-au/v1/energy/plans"
+3. Header Value is: "x-v: 1"
+4. URL Query #1 is "effective=CURRENT"
+   URL Query #2 is "type=ALL"
+   URL Query #3 is "page=${PAGE}" First query is "page=1" then continue to query until the value in meta.totalPages is reached.
+   URL Query #4 is "page-size=100"
+   URL Query #5 is "fuelType=ALL"
+5. Loop through all pages of each provider.
+6. Save each providers plans into a json file in the "plans" directory with the
+file names YYYYMMDD_${provider_name}.json If the plans directory doesn't exist,
+create it in the same directory as the script was run.
+
+
+Plan Filters:
+   - brand [string] - The shortened brand name of the provider 
+   - planId [string] - The plan unique identifier
+   - fuelType [string] - Options: "ELECTRICITY", "GAS", "DUAL"
+   - brandName [string] - The full brand name of the provider with spaces
+   - geography
+      - distributors [list] - The electricity distributor for the area
+      - includedPostcodes [list] - The postcodes covered by the plan
+   - displayName [string] - The name of the plan
+   - customerType [string] - Options: "RESIDENTIAL", "BUSINESS"
+
+Data Outputs (Used to propagate filters):
+   - brands [string] - A list of the brands matched by any provided filters if
+   no filters provided, return all brands
+   - brandName [String] - A list of the full brand names matched by any provided filters if
+   no filters provided, return all brandNames
+   - distributors [list] - A list of the gas/electricity distributors matched by any provided filters if
+   no filters provided, return all distributors
+   - postcodes [list] - A list of the postcodes matched by any provided filters if
+   no filters provided, return all postcodes
+   - customerType [string] - A list of the customer types matched by any provided filters if
+   no filters provided, return all customer types
+
+
+
+API Requestor - api_requests.py
+===============================
+This file is designed to take a list of URLs which it queues
+
+and list names to save results to,
+processing the requests in parallel using a queue and workers. At the end a set
+of lists will be returned with the results of the requests.
+
+1. Create a class called APIQueue and use pythons queue module to create a queue
+2. Set the number of workers to a default of 4
+3. Accept a URL and a python list name to save/add the json result into for
+submitted jobs.
+4. Create workers to process the queue and make the API requests, saving the
+json responses into the python list name passed in.
+5. Create threads for each worker and fire them off in background mode.
+
+
+
+
