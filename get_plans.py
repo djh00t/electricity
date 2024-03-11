@@ -30,6 +30,10 @@ import requests
 import json
 from datetime import datetime
 import argparse
+import subprocess
+from pathlib import Path
+from utilities import is_file_older_than
+from config import REFRESH_DAYS
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')
@@ -108,6 +112,15 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 
+def update_plan_details(brand, plan_ids):
+    for plan_id in plan_ids:
+        plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
+        if not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
+            logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
+            continue
+        logging.info(f"Updating plan detail for '{plan_id}'.")
+        subprocess.run(['python', 'get_plan_detail.py', plan_id], check=True)
+
 def main():
     """
     The main function that orchestrates the fetching and saving of electricity plans.
@@ -131,6 +144,8 @@ def main():
         plans = fetch_plans(brand_url, headers)
         if plans:
             save_plans_to_file(brand, plans)
+            plan_ids = [plan['planId'] for plan in plans]
+            update_plan_details(brand, plan_ids)
             total_providers += 1
             total_plans += len(plans)
 
