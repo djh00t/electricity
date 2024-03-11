@@ -1,11 +1,11 @@
 from utilities import ensure_brand_directory, is_file_older_than
+from config import BRAND_REFRESH_INTERVAL
 from get_providers import download_and_extract_pdf_data
 import logging
 import os
 import requests
 import json
 from datetime import datetime
-import logging
 import argparse
 
 parser = argparse.ArgumentParser()
