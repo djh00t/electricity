@@ -203,9 +203,16 @@ def update_plan_details(brand, plan_ids, base_url, headers):
                 if last_downloaded_str:
                     last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
                     current_time = datetime.now(timezone.utc)
-                    if (current_time - last_downloaded) < timedelta(days=REFRESH_DAYS):
+                    if (current_time - last_downloaded) >= timedelta(days=REFRESH_DAYS):
+                        logging.info(f"Downloading plan detail for '{plan_id}'.")
+                        plan_details = fetch_plan_details(base_url, headers, plan_id)
+                        save_plan_details(brand, plan_id, plan_details)
+                    else:
                         logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
-                        continue
+                else:
+                    logging.info(f"Downloading plan detail for '{plan_id}' due to missing 'lastDownloaded'.")
+                    plan_details = fetch_plan_details(base_url, headers, plan_id)
+                    save_plan_details(brand, plan_id, plan_details)
             logging.info(f"Downloading plan detail for '{plan_id}'.")
             plan_details = fetch_plan_details(base_url, headers, plan_id)
             save_plan_details(brand, plan_id, plan_details)
