@@ -33,12 +33,20 @@ def fetch_plans(base_url, headers):
             'fuelType': 'ALL'
         }
         response = requests.get(f"{base_url}cds-au/v1/energy/plans", headers=headers, params=params)
-        data = response.json()  # Assuming response is always JSON and successful
-        plans_data = data.get('data', {}).get('plans', [])
-        if plans_data:
-            plans.extend(plans_data)
-            logging.debug(f"Page {page}: Retrieved {len(plans_data)} plans")
-        if page >= data['meta']['totalPages']:
+        if response.ok:
+            data = response.json()
+            if 'meta' in data and 'totalPages' in data['meta']:
+                plans_data = data.get('data', {}).get('plans', [])
+                if plans_data:
+                    plans.extend(plans_data)
+                    logging.debug(f"Page {page}: Retrieved {len(plans_data)} plans")
+                if page >= data['meta']['totalPages']:
+                    break
+            else:
+                logging.error(f"Missing 'meta' or 'totalPages' in response data for page {page}")
+                break
+        else:
+            logging.error(f"Failed to fetch plans for page {page} with status code: {response.status_code}")
             break
         page += 1
     logging.debug(f"Total plans fetched: {len(plans)}")
