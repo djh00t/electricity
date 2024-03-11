@@ -197,7 +197,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
 def update_plan_details(brand, plan_ids, base_url, headers):
     def download_and_save(plan_id):
         brand_sanitized = brand.replace(' ', '_').lower()
-        plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
+        # plan_detail_file variable is now correctly defined inside the loop
         if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
             logging.info(f"Plan detail file exists: {plan_detail_file}")
             with open(plan_detail_file, 'r') as file:
@@ -223,36 +223,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
         futures = [executor.submit(download_and_save, plan_id) for plan_id in plan_ids]
         for future in concurrent.futures.as_completed(futures):
             future.result()  # This will raise any exceptions caught by the worker threads
-            brand_sanitized = brand.replace(' ', '_').lower()
-            plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
-            if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
-                logging.info(f"Plan detail file exists: {plan_detail_file}")
-                with open(plan_detail_file, 'r') as file:
-                    plan_data = json.load(file)
-                last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
-                if last_downloaded_str:
-                    last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
-                    current_time = datetime.now(timezone.utc)
-                    if (current_time - last_downloaded) < timedelta(days=REFRESH_DAYS):
-                        logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
-                        continue
-                    else:
-                        logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
-                        logging.info(f"Downloading plan detail for '{plan_id}'.")
-                        plan_details = fetch_plan_details(base_url, headers, plan_id)
-                        save_plan_details(brand, plan_id, plan_details)
-                else:
-                    logging.info(f"Downloading plan detail for '{plan_id}' due to missing 'lastDownloaded'.")
-                    plan_details = fetch_plan_details(base_url, headers, plan_id)
-                    save_plan_details(brand, plan_id, plan_details)
-            else:
-                logging.info(f"Plan detail file does not exist: {plan_detail_file}")
-                logging.info(f"Downloading plan detail for '{plan_id}' as file does not exist.")
-                plan_details = fetch_plan_details(base_url, headers, plan_id)
-                save_plan_details(brand, plan_id, plan_details)
-            logging.info(f"Downloading plan detail for '{plan_id}'.")
-            plan_details = fetch_plan_details(base_url, headers, plan_id)
-            save_plan_details(brand, plan_id, plan_details)
+            # Removed incorrect code block that was outside the loop
 
 
 def setup_logging(debug):
