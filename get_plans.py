@@ -196,7 +196,8 @@ def update_plan_details(brand, plan_ids, base_url, headers):
 def update_plan_details(brand, plan_ids, base_url, headers):
     with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
         for plan_id in plan_ids:
-            plan_detail_file = f"brands/{brand}/{plan_id}.json"
+            brand_sanitized = brand.replace(' ', '_').lower()
+            plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
             if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
                 logging.info(f"Plan detail file exists: {plan_detail_file}")
                 with open(plan_detail_file, 'r') as file:
@@ -258,7 +259,8 @@ def main():
     total_providers = 0
     total_plans = 0
     for brand, brand_url in provider_urls.items():
-        plans_file_path = f"brands/{brand.replace(' ', '_').lower()}/plans.json"
+        brand_sanitized = brand.replace(' ', '_').lower()
+        plans_file_path = f"brands/{brand_sanitized}/plans.json"
         if is_file_older_than(plans_file_path, REFRESH_DAYS * 24 * 60 * 60):
             logging.info(f"Processing provider: {brand}")
             plans = fetch_plans(brand_url, headers)
