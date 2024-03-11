@@ -32,7 +32,9 @@ from datetime import datetime
 import argparse
 import subprocess
 from pathlib import Path
-from utilities import is_file_older_than
+from utilities import is_file_older_than, load_provider_urls
+from concurrent.futures import ThreadPoolExecutor
+from config import DETAIL_THREADS
 from config import REFRESH_DAYS
 
 parser = argparse.ArgumentParser()
@@ -113,13 +115,17 @@ def save_plans_to_file(provider_name, plans):
 
 
 def update_plan_details(brand, plan_ids):
-    for plan_id in plan_ids:
-        plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
-        if plan_detail_file.exists() and not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
-            logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
-            continue
-        logging.info(f"Updating plan detail for '{plan_id}'.")
-        subprocess.run(['python', 'get_plan_detail.py', '--planId', plan_id, '--brand', brand], check=True)
+    with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
+        futures = []
+        for plan_id in plan_ids:
+            plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
+            if plan_detail_file.exists() and not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
+                logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
+                continue
+            logging.info(f"Updating plan detail for '{plan_id}'.")
+            futures.append(executor.submit(subprocess.run, ['python', 'get_plan_detail.py', '--planId', plan_id, '--brand', brand], check=True))
+        for future in futures:
+            future.result()  # Wait for all futures to complete
 
 def main():
     """
