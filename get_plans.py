@@ -21,7 +21,8 @@ Example:
     python get_plans.py --debug
 """
 
-from utilities import ensure_brand_directory, is_file_older_than, download_and_extract_pdf_data
+from utilities import ensure_brand_directory, is_file_older_than
+from get_plan_detail import download_and_save_plan_details
 from config import REFRESH_DAYS
 from utilities import load_provider_urls, download_and_extract_pdf_data
 import logging
@@ -116,18 +117,15 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 
-def update_plan_details(brand, plan_ids):
+def update_plan_details(brand, plan_ids, base_url, headers):
     with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
-        futures = []
         for plan_id in plan_ids:
             plan_detail_file = Path(f"brands/{brand}/{plan_id}.json")
             if plan_detail_file.exists() and not is_file_older_than(plan_detail_file, REFRESH_DAYS * 24 * 60 * 60):
                 logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
                 continue
             logging.info(f"Updating plan detail for '{plan_id}'.")
-            futures.append(executor.submit(subprocess.run, ['python', 'get_plan_detail.py', '--planId', plan_id, '--brand', brand], check=True))
-        for future in futures:
-            future.result()  # Wait for all futures to complete
+            executor.submit(download_and_save_plan_details, (brand, plan_id, base_url, headers))
 
 def main():
     """
