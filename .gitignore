@@ -1,2 +1,3 @@
 .aider*
 brands/*/*.json
+test[0-9].*
