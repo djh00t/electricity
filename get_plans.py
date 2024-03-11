@@ -197,7 +197,8 @@ def update_plan_details(brand, plan_ids, base_url, headers):
     with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
         for plan_id in plan_ids:
             plan_detail_file = f"brands/{brand}/{plan_id}.json"
-            if os.path.isfile(plan_detail_file):
+            if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
+                logging.info(f"Plan detail file exists: {plan_detail_file}")
                 with open(plan_detail_file, 'r') as file:
                     plan_data = json.load(file)
                 last_downloaded_str = plan_data.get('meta', {}).get('lastDownloaded')
@@ -217,6 +218,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
                     plan_details = fetch_plan_details(base_url, headers, plan_id)
                     save_plan_details(brand, plan_id, plan_details)
             else:
+                logging.info(f"Plan detail file does not exist: {plan_detail_file}")
                 logging.info(f"Downloading plan detail for '{plan_id}' as file does not exist.")
                 plan_details = fetch_plan_details(base_url, headers, plan_id)
                 save_plan_details(brand, plan_id, plan_details)
