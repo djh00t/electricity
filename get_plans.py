@@ -21,9 +21,9 @@ Example:
     python get_plans.py --debug
 """
 
-from utilities import ensure_brand_directory, is_file_older_than
+from utilities import ensure_brand_directory, is_file_older_than, download_and_extract_pdf_data
 from config import REFRESH_DAYS
-from utilities import load_provider_urls
+from utilities import load_provider_urls, download_and_extract_pdf_data
 import logging
 import os
 import requests
@@ -137,7 +137,6 @@ def main():
     to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
     to refresh the plans for a provider.
     """
-    provider_data = download_and_extract_pdf_data()
     provider_urls = PROVIDER_URLS
     logging.info(f"Number of providers found: {len(provider_urls)}")
     headers = {'x-v': '1'}
