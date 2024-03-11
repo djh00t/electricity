@@ -1,11 +1,10 @@
 import os
-import csv
+from get_providers import download_and_extract_pdf_data
 
-def load_provider_urls(filename):
-    with open(filename, newline='') as csvfile:
-        reader = csv.DictReader(csvfile)
-        reader.fieldnames = [name.strip() for name in reader.fieldnames]
-        return {row['Brand Name']: row['Retailer Base URI'].strip() for row in reader}
+def load_provider_urls():
+    url = 'https://www.aer.gov.au/documents/consumer-data-right-list-energy-retailer-base-uris-june-2023'
+    provider_data = download_and_extract_pdf_data(url)
+    return {provider['brand']: provider['uri'] for provider in provider_data}
 
 def ensure_brand_directory(brand_name):
     base_directory = "brands"
