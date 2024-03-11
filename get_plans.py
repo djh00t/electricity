@@ -126,6 +126,14 @@ def update_plan_details(brand, plan_ids, base_url, headers):
             logging.info(f"Updating plan detail for '{plan_id}'.")
             executor.submit(download_and_save_plan_details, (brand, plan_id, base_url, headers))
 
+def setup_logging(debug):
+    """
+    Sets up the logging configuration.
+    If debug is True, set the logging level to DEBUG, otherwise set it to INFO.
+    """
+    level = logging.DEBUG if debug else logging.INFO
+    logging.basicConfig(level=level, format='%(asctime)s - %(levelname)s - %(message)s')
+
 def main():
     """
     The main function that orchestrates the fetching and saving of electricity plans.
