@@ -22,7 +22,7 @@ Example:
 """
 
 from utilities import ensure_brand_directory, is_file_older_than
-from get_plan_detail import download_and_save_plan_details
+from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
 from config import REFRESH_DAYS
 from utilities import load_provider_urls, download_and_extract_pdf_data
 import logging
@@ -157,9 +157,9 @@ def update_plan_details(brand, plan_ids, base_url, headers):
                 )
                 continue
             logging.info(f"Updating plan detail for '{plan_id}'.")
-            executor.submit(
-                download_and_save_plan_details, (brand, plan_id, base_url, headers)
-            )
+            # Pass the plan information as a dictionary to avoid command-line argument parsing
+            plan_info = {'brand': brand, 'plan_id': plan_id, 'base_url': base_url, 'headers': headers}
+            executor.submit(download_and_save_plan_details, plan_info)
 
 
 def setup_logging(debug):
@@ -184,6 +184,8 @@ def main():
     args = parser.parse_args()
 
     setup_logging(args.debug)
+    # Set up logging for the detail module as well
+    setup_detail_logging(args.debug)
 
     provider_urls = load_provider_urls()
     logging.info(f"Number of providers found: {len(provider_urls)}")
