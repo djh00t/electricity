@@ -1,4 +1,5 @@
-"""
+"""Fetch and save electricity plans from providers.
+
 Script to fetch and save electricity plans from providers.
 
 This script fetches electricity plans from a list of provider URLs and saves them to JSON files.
@@ -18,7 +19,7 @@ Example:
     python get_plans.py --debug
 """
 
-import concurrent.futures
+import concurrent.futures  # For parallel execution of tasks
 from utilities import ensure_brand_directory, is_file_older_than
 #from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
 from utilities import load_provider_urls, download_and_extract_pdf_data
@@ -28,7 +29,7 @@ import requests
 import json
 from datetime import datetime, timezone, timedelta
 from datetime import datetime
-import argparse
+import argparse  # For parsing command line arguments
 from concurrent.futures import ThreadPoolExecutor
 from config import DETAIL_THREADS, REFRESH_DAYS
 
@@ -37,7 +38,7 @@ parser = argparse.ArgumentParser()
 parser.add_argument("--debug", action="store_true", help="Enable debug logging")
 args = parser.parse_args()
 
-logging.basicConfig(
+logging.basicConfig(  # Set up basic configuration for logging
     level=logging.DEBUG if args.debug else logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s",
 )
@@ -46,7 +47,7 @@ if args.debug:
     logging.basicConfig(
         level=logging.DEBUG, format="%(asctime)s - %(levelname)s - %(message)s"
     )
-else:
+else:  # Set logging level to INFO if debug is not enabled
     logging.basicConfig(
         level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
     )
@@ -56,7 +57,7 @@ logging.info("Starting electricity plans script")
 
 def setup_detail_logging(debug):
     """
-    Configure the logging level based on the debug flag.
+    Configure the logging level for the detail module based on the debug flag.
 
     Args:
         debug (bool): If True, set logging to debug level, otherwise to info level.
@@ -64,7 +65,7 @@ def setup_detail_logging(debug):
     if debug:
         logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
     else:
-        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')  # Use INFO level for non-debug mode
         # Note: The logging statement for skipping up-to-date plan details has been moved to the appropriate function.
 
 
@@ -73,7 +74,7 @@ def fetch_plans(base_url, headers):
     Fetches all plans for a given provider using their base URL.
 
     Args:
-        base_url (str): The base URL of the provider's API endpoint.
+        base_url (str): The base URL of the provider's API.
         headers (dict): The headers to use for the API request.
 
     Returns:
@@ -82,7 +83,7 @@ def fetch_plans(base_url, headers):
     page = 1
     plans = []
     logging.debug(f"Fetching plans for provider with base URL: {base_url}")
-    while True:
+    while True:  # Loop until all pages have been fetched
         params = {
             "effective": "CURRENT",
             "type": "ALL",
@@ -94,7 +95,7 @@ def fetch_plans(base_url, headers):
             f"{base_url}cds-au/v1/energy/plans", headers=headers, params=params
         )
         if response.ok:
-            data = response.json()
+            data = response.json()  # Parse the JSON response
             if "meta" in data and "totalPages" in data["meta"]:
                 plans_data = data.get("data", {}).get("plans", [])
                 if plans_data:
@@ -103,7 +104,7 @@ def fetch_plans(base_url, headers):
                 if page >= data["meta"]["totalPages"]:
                     break
             else:
-                logging.error(
+                logging.error(  # Log an error if the expected metadata is not present
                     f"Missing 'meta' or 'totalPages' in response data for page {page}"
                 )
                 break
@@ -112,7 +113,7 @@ def fetch_plans(base_url, headers):
                 f"Failed to fetch plans for page {page} with status code: {response.status_code}"
             )
             break
-        page += 1
+        page += 1  # Increment the page number for the next API call
     logging.debug(f"Total plans fetched: {len(plans)}")
     return plans
 
@@ -122,7 +123,7 @@ def save_plans_to_file(provider_name, plans):
     Saves a list of plans to a JSON file for a given provider.
 
     Args:
-        provider_name (str): The name of the provider.
+        provider_name (str): The name of the provider whose plans are being saved.
         plans (list): The list of plans to save.
 
     The function creates a directory for the provider if it does not exist,
@@ -131,7 +132,7 @@ def save_plans_to_file(provider_name, plans):
     directory = ensure_brand_directory(provider_name)
     filename = f"{directory.replace(' ', '_')}/plans.json"
     if plans:  # If plans is not an empty list, write to file
-        with open(filename, "w") as file:
+        with open(filename, "w") as file:  # Open the file for writing
             file.write(json.dumps(plans, indent=4))
         logging.info(
             f"Saved {len(plans)} plans for provider '{provider_name}' to '{filename}'"
@@ -141,7 +142,7 @@ def save_plans_to_file(provider_name, plans):
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
 
 
-def fetch_plan_details(base_url, headers, plan_id):
+def fetch_plan_details(base_url, headers, plan_id):  # Fetch details for a specific plan
     """
     Fetch the details of a specific plan from the API.
 
@@ -151,7 +152,7 @@ def fetch_plan_details(base_url, headers, plan_id):
         plan_id (str): The unique identifier for the plan.
 
     Returns:
-        dict: The JSON response containing the plan details.
+        dict: The plan details as a dictionary.
     """
     response = requests.get(f"{base_url}cds-au/v1/energy/plans/{plan_id}", headers=headers)
     return response.json()
@@ -161,7 +162,7 @@ def save_plan_details(brand_name, plan_id, plan_details):
     Save the details of a plan to a JSON file.
 
     Args:
-        brand_name (str): The name of the brand associated with the plan.
+        brand_name (str): The name of the brand to which the plan belongs.
         plan_id (str): The unique identifier for the plan.
         plan_details (dict): The plan details to save.
     """
@@ -170,7 +171,7 @@ def save_plan_details(brand_name, plan_id, plan_details):
     last_downloaded = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%S.000Z")
     plan_details['meta'] = {'lastDownloaded': last_downloaded}
     with open(filename, 'w') as file:
-        json.dump(plan_details, file, indent=4)
+        json.dump(plan_details, file, indent=4)  # Write the plan details to the file with indentation
     logging.info(f"Plan details for plan ID '{plan_id}' were saved.")
 
 def update_plan_details(brand, plan_ids, base_url, headers):
@@ -178,7 +179,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
     Update the plan details for the given brand and plan IDs.
 
     Args:
-        brand (str): The brand name.
+        brand (str): The name of the brand whose plan details are to be updated.
         plan_ids (list): A list of plan IDs.
         base_url (str): The base URL for downloading plan details.
         headers (dict): The headers to be used for the HTTP request.
@@ -190,7 +191,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
     def download_and_save(plan_id):
         brand_sanitized = brand.replace(' ', '_').lower()
         plan_detail_file = f"brands/{brand_sanitized}/{plan_id}.json"
-        # plan_detail_file variable is now correctly defined inside the loop
+        # Define the plan detail file path based on the brand and plan ID
         if os.path.isfile(plan_detail_file):  # Check if the plan detail file exists
             logging.info(f"Plan detail file exists: {plan_detail_file}")
             with open(plan_detail_file, 'r') as file:
@@ -200,7 +201,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
                 last_downloaded = datetime.strptime(last_downloaded_str, "%Y-%m-%dT%H:%M:%S.000Z").replace(tzinfo=timezone.utc)
                 current_time = datetime.now(timezone.utc)
                 if (current_time - last_downloaded) < timedelta(days=REFRESH_DAYS):
-                    logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")
+                    logging.info(f"Skipping plan detail for '{plan_id}' as it is up-to-date.")  # Skip if the plan details are current
                     return
                 else:
                     logging.info(f"Downloading plan detail for '{plan_id}'.")
@@ -212,7 +213,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
         plan_details = fetch_plan_details(base_url, headers, plan_id)
         save_plan_details(brand, plan_id, plan_details)
 
-    with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:
+    with ThreadPoolExecutor(max_workers=DETAIL_THREADS) as executor:  # Use a thread pool to download plan details concurrently
         futures = [executor.submit(download_and_save, plan_id) for plan_id in plan_ids]
         for future in concurrent.futures.as_completed(futures):
             future.result()  # This will raise any exceptions caught by the worker threads
@@ -222,7 +223,7 @@ def update_plan_details(brand, plan_ids, base_url, headers):
 def setup_logging(debug):
     """
     Sets up the logging configuration.
-    If debug is True, set the logging level to DEBUG, otherwise set it to INFO.
+    Set the logging level to DEBUG if debug is True, otherwise set it to INFO.
     """
     level = logging.DEBUG if debug else logging.INFO
     logging.basicConfig(level=level, format="%(asctime)s - %(levelname)s - %(message)s")
@@ -232,7 +233,7 @@ def main():
     """
     The main function that orchestrates the fetching and saving of electricity plans.
 
-    It processes command-line arguments, sets up logging, and iterates over provider URLs
+    Process command-line arguments, set up logging, and iterate over provider URLs
     to fetch and save plans. It uses the 'REFRESH_DAYS' to determine whether
     to refresh the plans for a provider.
     """
@@ -240,7 +241,7 @@ def main():
     parser.add_argument("--debug", action="store_true", help="Enable debug logging")
     args = parser.parse_args()
 
-    setup_logging(args.debug)
+    setup_logging(args.debug)  # Configure logging based on the debug flag
     # Set up logging for the detail module as well
     setup_detail_logging(args.debug)
 
@@ -249,7 +250,7 @@ def main():
     headers = {"x-v": "1"}
     total_providers = 0
     total_plans = 0
-    for brand, brand_url in provider_urls.items():
+    for brand, brand_url in provider_urls.items():  # Iterate over each provider URL
         brand_sanitized = brand.replace(' ', '_').lower()
         plans_file_path = f"brands/{brand_sanitized}/plans.json"
         if is_file_older_than(plans_file_path, REFRESH_DAYS * 24 * 60 * 60):
@@ -259,7 +260,7 @@ def main():
                 save_plans_to_file(brand, plans)
                 total_providers += 1
                 total_plans += len(plans)
-        # Check if individual plan details are up-to-date
+        # Check if individual plan details are up-to-date and update if necessary
         if os.path.exists(plans_file_path):
             with open(plans_file_path, 'r') as file:
                 plans = json.load(file)
@@ -267,7 +268,7 @@ def main():
             update_plan_details(brand, plan_ids, brand_url, headers)
         logging.info(f"Processing provider: {brand}")
         plans = fetch_plans(brand_url, headers)
-        if plans:
+        if plans:  # Save plans and update plan details if plans are fetched
             save_plans_to_file(brand, plans)
             plan_ids = [plan["planId"] for plan in plans]
             update_plan_details(brand, plan_ids, brand_url, headers)
