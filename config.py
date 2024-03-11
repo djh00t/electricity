@@ -7,7 +7,7 @@ RETAILER_PDF_URL = 'https://www.aer.gov.au/documents/consumer-data-right-list-en
 BRAND_REFRESH_INTERVAL = 60 * 60 * 24  # 24 hours
 
 # Number of days after which the plan should be refreshed
-REFRESH_DAYS = 1
+REFRESH_DAYS = 7
 
 # Number of parallel processes for checking plan details
 DETAIL_THREADS = 10
