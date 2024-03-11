@@ -1,3 +1,26 @@
+"""
+Script to fetch and save electricity plans from providers.
+
+This script fetches electricity plans from a list of provider URLs and saves them to JSON files.
+Each provider's plans are saved in a directory named after the provider within a 'brands' directory.
+
+The script uses the 'x-v: 1' header for API requests and queries the API with specific parameters
+to retrieve current plans of all types and fuel types, paginating through results as necessary.
+
+Plans are saved to 'brands/{brand}/plans.json' and include a 'meta.lastDownloaded' field with the
+current datetime in UTC. Directories are created as needed. Plans are only updated if they are
+older than the interval specified by 'BRAND_REFRESH_INTERVAL' in 'config.py'.
+
+Usage:
+    python get_plans.py [--debug]
+
+Options:
+    --debug  Enable debug logging for more verbose output.
+
+Example:
+    python get_plans.py --debug
+"""
+
 from utilities import ensure_brand_directory, is_file_older_than
 from config import BRAND_REFRESH_INTERVAL
 from get_providers import download_and_extract_pdf_data
@@ -22,6 +45,16 @@ else:
 logging.info("Starting electricity plans script")
 
 def fetch_plans(base_url, headers):
+    """
+    Fetches all plans for a given provider using their base URL.
+
+    Args:
+        base_url (str): The base URL of the provider's API endpoint.
+        headers (dict): The headers to use for the API request.
+
+    Returns:
+        list: A list of plan dictionaries fetched from the provider.
+    """
     """
     Fetches all plans for a given provider using their base URL.
 
@@ -74,6 +107,16 @@ def save_plans_to_file(provider_name, plans):
     The function creates a directory for the provider if it does not exist,
     and either writes the plans to a file or deletes the existing file if no plans are fetched.
     """
+    """
+    Saves a list of plans to a JSON file for a given provider.
+
+    Args:
+        provider_name (str): The name of the provider.
+        plans (list): The list of plans to save.
+
+    The function creates a directory for the provider if it does not exist,
+    and either writes the plans to a file or deletes the existing file if no plans are fetched.
+    """
     directory = ensure_brand_directory(provider_name)
     filename = f"{directory.replace(' ', '_')}/plans.json"
     if plans:  # If plans is not an empty list, write to file
@@ -86,6 +129,13 @@ def save_plans_to_file(provider_name, plans):
 
 
 def main():
+    """
+    The main function that orchestrates the fetching and saving of electricity plans.
+
+    It processes command-line arguments, sets up logging, and iterates over provider URLs
+    to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
+    to refresh the plans for a provider.
+    """
     """
     The main function that orchestrates the fetching and saving of electricity plans.
 
