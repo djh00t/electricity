@@ -97,7 +97,7 @@ def main():
         sys.exit(1)
 
     # Load provider URLs from the CSV file to get the base URL
-    provider_urls = load_provider_urls('electricity_plan_urls.csv')
+    provider_urls = load_provider_urls()
     base_url = provider_urls.get(brand)
     if not base_url:
         sys.stderr.write(f"Error: The brand '{brand}' was not found in provider URLs.\n")
