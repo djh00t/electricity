@@ -9,7 +9,7 @@ to retrieve current plans of all types and fuel types, paginating through result
 
 Plans are saved to 'brands/{brand}/plans.json' and include a 'meta.lastDownloaded' field with the
 current datetime in UTC. Directories are created as needed. Plans are only updated if they are
-older than the interval specified by 'BRAND_REFRESH_INTERVAL' in 'config.py'.
+older than the interval specified by 'REFRESH_DAYS' in 'config.py'.
 
 Usage:
     python get_plans.py [--debug]
@@ -241,7 +241,7 @@ def main():
     The main function that orchestrates the fetching and saving of electricity plans.
 
     It processes command-line arguments, sets up logging, and iterates over provider URLs
-    to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
+    to fetch and save plans. It uses the 'REFRESH_DAYS' to determine whether
     to refresh the plans for a provider.
     """
     parser = argparse.ArgumentParser(description="Fetch and save electricity plans.")
