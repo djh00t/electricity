@@ -66,7 +66,7 @@ def download_and_extract_pdf_data(url):
         url (str): The URL to fetch the PDF from.
 
     Returns:
-        None
+        list of dict: A list of dictionaries containing retailer 'brand' and 'uri'.
     """
     logger.info(f"Fetching URL: {url}")
     response = requests.get(url)
@@ -74,10 +74,11 @@ def download_and_extract_pdf_data(url):
 
     soup = BeautifulSoup(response.text, 'html.parser')
     pdf_link_tag = soup.find('h3', class_='card__title file__title').find('a', href=True, type="application/pdf", class_="stretched-link")
+
     
     if not pdf_link_tag:
         logger.warning("No PDF link found on the page.")
-        return
+        return []
 
     pdf_url = urllib.parse.urljoin(response.url, pdf_link_tag['href'])
     logger.info(f"Downloading PDF from: {pdf_url}")
@@ -88,10 +89,11 @@ def download_and_extract_pdf_data(url):
     pdf_response.raise_for_status()  # Ensure we have a successful response
 
     # Here we pass the PDF content directly as a stream
-    retailer_data = extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the extract_pdf_data function
-    print(retailer_data)
+    return extract_pdf_data(io.BytesIO(pdf_response.content))  # Correctly passing the stream to the extract_pdf_data function
 
 # The URL to fetch the PDF from
 url = 'https://www.aer.gov.au/documents/consumer-data-right-list-energy-retailer-base-uris-june-2023'
 # Perform the download and data extraction.
-download_and_extract_pdf_data(url)
+retailer_data = download_and_extract_pdf_data(url)
+# Optionally, you can now use retailer_data as needed, for example:
+# print(retailer_data)
