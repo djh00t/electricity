@@ -69,7 +69,7 @@ def download_and_extract_pdf_data():
     Returns:
         list of dict: A list of dictionaries containing retailer 'brand' and 'uri'.
     """
-    logger.info(f"Fetching URL: {url}")
+    logger.info(f"Fetching URL: {RETAILER_PDF_URL}")
     response = requests.get(RETAILER_PDF_URL)
     response.raise_for_status()
 
