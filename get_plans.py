@@ -22,7 +22,7 @@ Example:
 """
 
 from utilities import ensure_brand_directory, is_file_older_than
-from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
+#from get_plan_detail import download_and_save_plan_details, setup_logging as setup_detail_logging
 from config import REFRESH_DAYS
 from utilities import load_provider_urls, download_and_extract_pdf_data
 import logging
@@ -59,6 +59,20 @@ else:
     )
 
 logging.info("Starting electricity plans script")
+
+
+def setup_detail_logging(debug):
+    """
+    Configure the logging level based on the debug flag.
+
+    Args:
+        debug (bool): If True, set logging to debug level, otherwise to info level.
+    """
+    if debug:
+        logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
+    else:
+        logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
+        # Note: The logging statement for skipping up-to-date plan details has been moved to the appropriate function.
 
 
 def fetch_plans(base_url, headers):
