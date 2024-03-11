@@ -5,11 +5,11 @@ The PDF is expected to contain retailer names and their corresponding base URIs.
 The script performs the following steps:
 1. Download the PDF from a given URL.
 2. Extract retailer data from the PDF.
-3. Print the extracted data to the console.
+3. Return a list of dictionaries containing the brand and URI of each brand.
 
 Usage:
     Simply run the script, and it will perform the download and extraction automatically.
-    The URL from which the PDF is downloaded is hardcoded in the script.
+    The URL from which the PDF is downloaded is controlled in config.py
 
 Example:
     python get_providers.py
@@ -20,7 +20,6 @@ from bs4 import BeautifulSoup
 import urllib.parse
 import fitz  # PyMuPDF
 import logging
-from config import RETAILER_PDF_URL
 from config import RETAILER_PDF_URL
 
 # Configure logging
@@ -83,8 +82,6 @@ def download_and_extract_pdf_data():
         return []
 
     pdf_url = urllib.parse.urljoin(response.url, pdf_link_tag['href'])
-    logger.info(f"Downloading PDF from: {pdf_url}")
-    
     logger.info(f"Downloading PDF from: {pdf_url}")
 
     pdf_response = requests.get(pdf_url)
