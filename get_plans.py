@@ -1,6 +1,7 @@
-from utilities import ensure_brand_directory
+from utilities import ensure_brand_directory, is_file_older_than
 from get_providers import download_and_extract_pdf_data
 import logging
+import os
 import requests
 import json
 from datetime import datetime
@@ -62,7 +63,7 @@ def save_plans_to_file(provider_name, plans):
     elif os.path.exists(filename):  # If plans is empty and file exists, delete the file
         os.remove(filename)
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
-from utilities import is_file_older_than
+
 
 def main():
     provider_data = download_and_extract_pdf_data()
