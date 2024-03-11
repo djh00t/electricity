@@ -38,7 +38,6 @@ from concurrent.futures import ThreadPoolExecutor
 from config import DETAIL_THREADS
 from config import REFRESH_DAYS
 
-PROVIDER_URLS = load_provider_urls()
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--debug', action='store_true', help='Enable debug logging')

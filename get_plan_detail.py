@@ -7,7 +7,7 @@ import logging
 import json
 import requests
 from concurrent.futures import ProcessPoolExecutor
-from get_plans import PROVIDER_URLS
+from providers import PROVIDER_URLS
 
 def check_plan_exists(filename):
     exists = os.path.isfile(filename)
