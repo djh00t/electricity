@@ -134,7 +134,7 @@ def main():
     to fetch and save plans. It uses the 'BRAND_REFRESH_INTERVAL' to determine whether
     to refresh the plans for a provider.
     """
-    provider_urls = PROVIDER_URLS
+    provider_urls = load_provider_urls()
     logging.info(f"Number of providers found: {len(provider_urls)}")
     headers = {'x-v': '1'}
     total_providers = 0
