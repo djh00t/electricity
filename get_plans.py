@@ -62,21 +62,7 @@ def save_plans_to_file(provider_name, plans):
     elif os.path.exists(filename):  # If plans is empty and file exists, delete the file
         os.remove(filename)
         logging.info(f"Deleted existing file '{filename}' as no plans were fetched")
-import os
-from datetime import datetime, timedelta
-import time
-
-def fetch_plans(base_url, headers):
-    ...
-
-def save_plans_to_file(provider_name, plans):
-    ...
-
-def is_file_older_than(filepath, seconds):
-    if not os.path.isfile(filepath):
-        return True
-    file_mod_time = os.path.getmtime(filepath)
-    return (time.time() - file_mod_time) > seconds
+from utilities import is_file_older_than
 
 def main():
     provider_data = download_and_extract_pdf_data()
